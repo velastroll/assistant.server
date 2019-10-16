@@ -1,0 +1,128 @@
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "gradle.plugin.org.gretty:gretty:2.3.1"
+        classpath "com.github.jengelman.gradle.plugins:shadow:2.0.1" // ShadowJar
+
+    }
+}
+
+apply plugin: 'kotlin'
+apply plugin: 'application'
+apply plugin: 'war'
+apply plugin: "com.github.johnrengelman.shadow"
+apply plugin: 'org.gretty'
+webAppDirName = 'webapp'
+
+group 'percomp'
+version '0.0.1'
+//mainClassName = "io.ktor.server.netty.EngineMain"
+mainClassName = "com.percomp.assistant.core.ApplicationKt"
+
+//javalin
+apply plugin: 'java'
+sourceCompatibility = 1.8
+
+
+sourceSets {
+    main.kotlin.srcDirs = main.java.srcDirs = ['src']
+    //test.kotlin.srcDirs = test.java.srcDirs = ['test']
+    main.resources.srcDirs = ['resources']
+    //test.resources.srcDirs = ['testresources']
+}
+
+repositories {
+    mavenLocal()
+    jcenter()
+    maven { url 'http://jcenter.bintray.com' }
+    maven { url 'https://kotlin.bintray.com/ktor' }
+    maven { url 'https://kotlin.bintray.com/kotlinx' }
+    maven { url 'https://kotlin.bintray.com/kotlin-js-wrappers' }
+    //oauth
+    maven { url 'https://dl.bintray.com/adhesivee/oauth2-server' }
+
+    // javalin
+    mavenCentral()
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    compile "ch.qos.logback:logback-classic:$logback_version"
+    compile "io.ktor:ktor-client-core:$ktor_version"
+    compile "io.ktor:ktor-client-core-jvm:$ktor_version"
+    compile "io.ktor:ktor-client-gson:$ktor_version"
+    compile "io.ktor:ktor-server-core:$ktor_version"
+    compile "io.ktor:ktor-server-netty:$ktor_version"
+    compile "io.ktor:ktor-server-servlet:$ktor_version"
+    testCompile "io.ktor:ktor-server-tests:$ktor_version"
+
+    //html include for server side
+    compile "io.ktor:ktor-html-builder:$ktor_version"
+
+    // Content negotiation
+    compile "io.ktor:ktor-gson:$ktor_version"
+
+    // oauth ktor-client
+    compile "io.ktor:ktor-auth:$ktor_version"
+
+    // location
+    compile "io.ktor:ktor-locations:$ktor_version"
+
+    // apache to oauth
+    compile "io.ktor:ktor-client-apache:$ktor_version"
+
+    // oauth
+    compile "nl.myndocs:oauth2-server-core:$myndocs_oauth_version"
+    // oauth in memory dependencies
+    compile "nl.myndocs:oauth2-server-client-inmemory:$myndocs_oauth_version"
+    compile "nl.myndocs:oauth2-server-identity-inmemory:$myndocs_oauth_version"
+    compile "nl.myndocs:oauth2-server-token-store-inmemory:$myndocs_oauth_version"
+    // oauth ktor-server
+    compile "nl.myndocs:oauth2-server-ktor:$myndocs_oauth_version"
+
+    // Database access
+    implementation("org.jetbrains.exposed:exposed:0.12.1")
+    compile 'com.zaxxer:HikariCP:2.7.8'    // Hikari Connection Pool
+    compile group: 'org.postgresql', name: 'postgresql', version: '42.2.2'    // Postgres to v11
+
+    // To use Instant class
+    implementation("joda-time:joda-time:2.9.2")
+
+    // KHTTP
+    compile "khttp:khttp:0.1.0"
+
+    // To make JAR
+    implementation "org.jetbrains.kotlin:kotlin-reflect"
+
+    //JSoup
+    implementation("org.jsoup:jsoup:1.11.3")
+    
+    // Javalin: send mails
+    compile "io.javalin:javalin:3.1.0"
+    compile "org.apache.commons:commons-email:1.4"
+    compile "org.slf4j:slf4j-simple:1.7.26"
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'com.percomp.assistant.core.ApplicationKt'
+    }
+    from {
+        (configurations.runtime).collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+}
+
+shadowJar {
+    baseName = 'assistant.core'
+    classifier = null
+    version = null
+}

@@ -1,7 +1,7 @@
 package com.percomp.assistant.core
 
-import com.percomp.assistant.core.controller.Retriever.AytoSanVicente
-import com.percomp.assistant.core.controller.Retriever.Wikipedia
+import com.percomp.assistant.core.controller.Retriever.Retriever
+import com.percomp.assistant.core.controller.Retriever.TOWNS
 import io.ktor.application.*
 import io.ktor.features.CORS
 import io.ktor.features.ContentNegotiation
@@ -72,7 +72,7 @@ fun Application.coreModule() {
         host("localhost")
         //host("lab.infor.uva.com")
         //host("lab.infor.uva.com", subDomains = listOf("TFG_"))
-        //host("ext-gmv.com", schemes = listOf("https"))
+        //host("lab.infor.uva.com", schemes = listOf("https"))
         allowCredentials = true
         maxAge = Duration.ofDays(1)
     }
@@ -80,7 +80,7 @@ fun Application.coreModule() {
     routing {
         get("test"){
             log.warn("Into test...")
-            val ayto = AytoSanVicente().ayto
+            val ayto = Retriever(TOWNS.SANVICENTEDELPALACIO).data
             call.respond(ayto)
         }
     }

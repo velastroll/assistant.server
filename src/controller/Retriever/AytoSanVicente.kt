@@ -12,15 +12,16 @@ import javax.net.ssl.X509TrustManager
 import javax.security.cert.CertificateException
 
 
-class AytoSanVicente(){
+class Retriever(town : TOWNS){
 
-    val ayto = AytoData(url = "https://sanvicentedelpalacio.ayuntamientosdevalladolid.es/")
+    val data = Place()
 
     init {
-        val doc = Jsoup.connect(ayto.url).sslSocketFactory(socketFactory()).get()    // <1>
 
+        // get html from the imputed url
+        val doc = Jsoup.connect(town.url).sslSocketFactory(socketFactory()).get()    // <1>
 
-        // get address
+        // extract address
         val address = Address()
         doc.select("div .address .name")  // get name
             .forEach { element ->
@@ -41,28 +42,28 @@ class AytoSanVicente(){
             .forEach { element ->
                 address.city = element.text()
             }
-        ayto.address = address
+        data.address = address
 
 
-        // get data
+        // extract data
         doc.select("div .phones .local") // get telephone
             .forEach { element ->
-                ayto.telephone = element.text()
+                data.telephone = element.text()
             }
         doc.select("div .phones .fax") // get fax
             .forEach { element ->
-                ayto.fax = element.text()
+                data.fax = element.text()
             }
         doc.select("div .email") // get email
             .forEach { element ->
-                ayto.email = element.text()
+                data.email = element.text()
             }
         doc.select("div .urlExterna") // get email
             .forEach { element ->
-                ayto.urlExterna = element.text()
+                data.urlExterna = element.text()
             }
 
-        println(ayto)
+        println(data)
 
     }
 
@@ -101,7 +102,7 @@ class AytoSanVicente(){
 /**
  * Data class to retrieve the contact of a specific Ayto.
  */
-data class AytoData(
+data class Place(
     var address: Address? = null,
     var telephone: String? = null,
     var fax:String? = null,
@@ -116,3 +117,9 @@ data class Address(
     var postalcode : String? = null,
     var city : String? = null
 )
+
+enum class TOWNS(val url : String) {
+
+    SANVICENTEDELPALACIO("https://sanvicentedelpalacio.ayuntamientosdevalladolid.es");
+
+}

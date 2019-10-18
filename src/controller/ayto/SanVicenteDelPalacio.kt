@@ -4,6 +4,7 @@ import com.percomp.assistant.core.controller.Retriever.Address
 import com.percomp.assistant.core.controller.Retriever.Place
 import com.percomp.assistant.core.controller.Retriever.Towns
 import com.percomp.assistant.core.controller.retriever.Certificateless
+import kotlinx.coroutines.runBlocking
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 
@@ -20,12 +21,9 @@ import org.jsoup.nodes.Document
 class SanVicenteDelPalacio : Certificateless() {
 
     var data = Place() // contact data of the ayto
-    private var ayto : Document // website parsed to doc
 
-    // constructor
     init {
-        // get the document
-        ayto = reload()
+        data = updateContactData()
     }
 
     /**
@@ -33,6 +31,9 @@ class SanVicenteDelPalacio : Certificateless() {
      * @return A place information.
      */
     private fun updateContactData() : Place {
+        val ayto : Document =
+            Jsoup.connect(Towns.SANVICENTEDELPALACIO.url).sslSocketFactory(socketFactory()).get() // website parsed to doc
+
         val place = Place()
         // extract address
         val address = Address()
@@ -76,6 +77,8 @@ class SanVicenteDelPalacio : Certificateless() {
                 place.urlExterna = element.text()
             }
 
+        println("[inner] $place")
+
         // return data
         return place
     }
@@ -86,7 +89,8 @@ class SanVicenteDelPalacio : Certificateless() {
      */
     public fun reload() : Document {
         // get html from the imputed url
-        val doc = Jsoup.connect(Towns.SANVICENTEDELPALACIO.url).sslSocketFactory(socketFactory()).get()
+        val doc =  Jsoup.connect(Towns.SANVICENTEDELPALACIO.url).sslSocketFactory(socketFactory()).get()
+        while (doc == null ) {}
         data = updateContactData()
         return doc
     }

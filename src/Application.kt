@@ -1,7 +1,8 @@
 package com.percomp.assistant.core
 
 import com.percomp.assistant.core.controller.Retriever.Retriever
-import com.percomp.assistant.core.controller.Retriever.TOWNS
+import com.percomp.assistant.core.controller.Retriever.Towns
+import com.percomp.assistant.core.util.Credentials
 import io.ktor.application.*
 import io.ktor.features.CORS
 import io.ktor.features.ContentNegotiation
@@ -17,20 +18,21 @@ import io.ktor.server.netty.Netty
 import io.ktor.util.KtorExperimentalAPI
 import java.time.Duration
 
-const val PORT = 8082
+val PORT = Credentials.PORT.value
 
 /**
  * Access to Assistant Core API.
  *
  * @author Álvaro Velasco Gil -  alvarovelascogil@gmail.com
  */
+@KtorExperimentalLocationsAPI
 @KtorExperimentalAPI
 fun main() {
     // Netty embedded server
     embeddedServer(
         Netty,
         watchPaths = listOf("percomp.assistant.core"),
-        port = PORT,
+        port = PORT.toInt(),
         module = Application::coreModule
     ).apply {
         start(wait = true)
@@ -80,7 +82,7 @@ fun Application.coreModule() {
     routing {
         get("test"){
             log.warn("Into test...")
-            val ayto = Retriever(TOWNS.SANVICENTEDELPALACIO).data
+            val ayto = Retriever(Towns.SANVICENTEDELPALACIO).data
             call.respond(ayto)
         }
     }

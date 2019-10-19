@@ -4,8 +4,10 @@ import com.percomp.assistant.core.config.Token
 import com.percomp.assistant.core.config.checkUri
 import com.percomp.assistant.core.config.oauth.InMemoryIdentityCustom
 import com.percomp.assistant.core.config.oauth.InMemoryTokenStoreCustom
-import com.percomp.assistant.core.controller.Retriever.Retriever
-import com.percomp.assistant.core.controller.Retriever.Towns
+import com.percomp.assistant.core.controller.retriever.IScheduledRetriever
+import com.percomp.assistant.core.controller.retriever.Retriever
+import com.percomp.assistant.core.controller.retriever.ScheduledRetriever
+import com.percomp.assistant.core.controller.retriever.Towns
 import com.percomp.assistant.core.util.Credentials
 import io.ktor.application.*
 import io.ktor.auth.*
@@ -22,7 +24,6 @@ import io.ktor.request.uri
 import io.ktor.response.respond
 import io.ktor.routing.get
 import io.ktor.routing.param
-import io.ktor.routing.route
 import io.ktor.routing.routing
 import io.ktor.server.engine.BaseApplicationResponse
 import io.ktor.server.engine.embeddedServer
@@ -98,7 +99,9 @@ fun Application.coreModule() {
 
     // JSon converter
     install(ContentNegotiation) {
-        gson {}
+        gson {
+            setPrettyPrinting()
+        }
     }
 
     //install CORS
@@ -127,12 +130,20 @@ fun Application.coreModule() {
         maxAge = Duration.ofDays(1)
     }
 
-    // In this moment only test, but in un future then I put here the service modules
+
+    // Execute the retriever
+    IScheduledRetriever.init()
+
+    // In this moment only [/test], but in un future then I put here the service modules
     routing {
-        get("test"){
-            val ayto = Retriever(Towns.SANVICENTEDELPALACIO).data
-            println("[>] $ayto")
-            call.respond(ayto)
+        get("test/{town}"){
+            try {
+                val town : String = call.parameters["town"] ?: ""
+                val places = IScheduledRetriever.get(Towns.valueOf(town.toUpperCase()))
+                call.respond(HttpStatusCode.OK, places)
+            } catch (e : Exception){
+             call.respond(HttpStatusCode.Conflict)
+            }
         }
     }
 }

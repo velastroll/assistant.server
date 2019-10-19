@@ -1,4 +1,4 @@
-package com.percomp.assistant.core.controller.Retriever
+package com.percomp.assistant.core.controller.retriever
 
 import com.percomp.assistant.core.controller.aytos.SanVicenteDelPalacio
 
@@ -8,11 +8,14 @@ import com.percomp.assistant.core.controller.aytos.SanVicenteDelPalacio
  */
 class Retriever(town : Towns){
 
-    var data = Place()
+    var data = ArrayList<Place>()
 
     init {
         when(town){
-            Towns.SANVICENTEDELPALACIO -> data = SanVicenteDelPalacio().data
+            Towns.SANVICENTEDELPALACIO -> {
+                data = SanVicenteDelPalacio().data
+            }
+            // other
         }
     }
 

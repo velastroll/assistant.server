@@ -1,10 +1,9 @@
 package com.percomp.assistant.core.controller.aytos
 
-import com.percomp.assistant.core.controller.Retriever.Address
-import com.percomp.assistant.core.controller.Retriever.Place
-import com.percomp.assistant.core.controller.Retriever.Towns
+import com.percomp.assistant.core.controller.retriever.Address
 import com.percomp.assistant.core.controller.retriever.Certificateless
-import kotlinx.coroutines.runBlocking
+import com.percomp.assistant.core.controller.retriever.Place
+import com.percomp.assistant.core.controller.retriever.Towns
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 
@@ -20,10 +19,11 @@ import org.jsoup.nodes.Document
  */
 class SanVicenteDelPalacio : Certificateless() {
 
-    var data = Place() // contact data of the ayto
+    val town = Towns.SANVICENTEDELPALACIO
+    var data = ArrayList<Place>() // contact data of the ayto
 
     init {
-        data = updateContactData()
+        data.add(updateContactData())
     }
 
     /**
@@ -31,8 +31,9 @@ class SanVicenteDelPalacio : Certificateless() {
      * @return A place information.
      */
     private fun updateContactData() : Place {
+        println(" >> Updating $town.")
         val ayto : Document =
-            Jsoup.connect(Towns.SANVICENTEDELPALACIO.url).sslSocketFactory(socketFactory()).get() // website parsed to doc
+            Jsoup.connect(town.url).sslSocketFactory(socketFactory()).get() // website parsed to doc
 
         val place = Place()
         // extract address
@@ -77,8 +78,6 @@ class SanVicenteDelPalacio : Certificateless() {
                 place.urlExterna = element.text()
             }
 
-        println("[inner] $place")
-
         // return data
         return place
     }
@@ -89,9 +88,10 @@ class SanVicenteDelPalacio : Certificateless() {
      */
     public fun reload() : Document {
         // get html from the imputed url
-        val doc =  Jsoup.connect(Towns.SANVICENTEDELPALACIO.url).sslSocketFactory(socketFactory()).get()
+        val doc =  Jsoup.connect(town.url).sslSocketFactory(socketFactory()).get()
         while (doc == null ) {}
-        data = updateContactData()
+        // TODO: check if persist old occurrences to delete it in this case.
+        data.add(updateContactData())
         return doc
     }
 

@@ -4,10 +4,7 @@ import com.percomp.assistant.core.config.Token
 import com.percomp.assistant.core.config.checkUri
 import com.percomp.assistant.core.config.oauth.InMemoryIdentityCustom
 import com.percomp.assistant.core.config.oauth.InMemoryTokenStoreCustom
-import com.percomp.assistant.core.controller.retriever.IScheduledRetriever
-import com.percomp.assistant.core.controller.retriever.Retriever
-import com.percomp.assistant.core.controller.retriever.ScheduledRetriever
-import com.percomp.assistant.core.controller.retriever.Towns
+import com.percomp.assistant.core.controller.retriever.*
 import com.percomp.assistant.core.util.Credentials
 import io.ktor.application.*
 import io.ktor.auth.*
@@ -15,11 +12,13 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.apache.Apache
 import io.ktor.features.CORS
 import io.ktor.features.ContentNegotiation
+import io.ktor.features.origin
 import io.ktor.gson.gson
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.locations.*
+import io.ktor.request.host
 import io.ktor.request.uri
 import io.ktor.response.respond
 import io.ktor.routing.get
@@ -138,15 +137,18 @@ fun Application.coreModule() {
     routing {
         get("test/{town}"){
             try {
+                println("New request from [${call.request.origin.remoteHost}]")
                 val town : String = call.parameters["town"] ?: ""
                 val places = IScheduledRetriever.get(Towns.valueOf(town.toUpperCase()))
-                call.respond(HttpStatusCode.OK, places)
+                call.respond(HttpStatusCode.OK, Response("ALIVE", places))
             } catch (e : Exception){
              call.respond(HttpStatusCode.Conflict)
             }
         }
     }
 }
+
+data class Response(val status : String, val places: ArrayList<Place>)
 
 
 /**

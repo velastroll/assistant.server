@@ -28,5 +28,5 @@ enum class Credentials(val value : String){
     DB_NAME("assistant"),
     DB_MAXPOOLSIZE("10"),
     DB_USERNAME("postgres"),
-    DB_PASSWORD("postgres")
+    DB_PASSWORD("cu4lquie.Rar")
 }

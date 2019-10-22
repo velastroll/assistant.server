@@ -81,7 +81,7 @@ object DatabaseFactory {
         config.isAutoCommit = false
         config.transactionIsolation = "TRANSACTION_REPEATABLE_READ"
         config.username = Credentials.DB_USERNAME.value
-        config.password = "cu4lquie.Rar" //Credentials.DB_PASSWORD.value
+        config.password = Credentials.DB_PASSWORD.value
         config.validate()
         return HikariDataSource(config)
     }

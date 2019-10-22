@@ -5,6 +5,7 @@ import com.percomp.assistant.core.config.checkUri
 import com.percomp.assistant.core.config.oauth.InMemoryIdentityCustom
 import com.percomp.assistant.core.config.oauth.InMemoryTokenStoreCustom
 import com.percomp.assistant.core.controller.retriever.*
+import com.percomp.assistant.core.dao.DatabaseFactory
 import com.percomp.assistant.core.util.Credentials
 import io.ktor.application.*
 import io.ktor.auth.*
@@ -68,6 +69,9 @@ fun main() {
 @KtorExperimentalLocationsAPI
 fun Application.coreModule() {
 
+    // init database
+    DatabaseFactory.init()
+
 
     // instance of tokenStore for OAuth authentication
     tokenStore = InMemoryTokenStoreCustom.get()
@@ -95,6 +99,14 @@ fun Application.coreModule() {
         tokenStore = InMemoryTokenStoreCustom.get()
     }
 
+    // Initialising Client
+    this.OAuthLoginApplicationWithDeps(
+        oauthHttpClient = HttpClient(Apache).apply {
+            environment.monitor.subscribe(ApplicationStopping) {
+                close()
+            }
+        }
+    )
 
     // JSon converter
     install(ContentNegotiation) {

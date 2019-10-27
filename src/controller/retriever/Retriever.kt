@@ -50,6 +50,6 @@ data class Address(
  */
 public enum class Towns(val url : String) {
 
-    SANVICENTEDELPALACIO("http://sanvicentedelpalacio.ayuntamientosdevalladolid.es");
+    SANVICENTEDELPALACIO("https://sanvicentedelpalacio.ayuntamientosdevalladolid.es");
 
 }

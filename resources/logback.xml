@@ -32,12 +32,13 @@
     </appender>
 
 
-    <root level="TRACE">
+    <root level="WARN">
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="FILE-AUDIT"/>
     </root>
 
-    <logger  name="com.percomp" additivity="true" level="WARN" />
-    <logger name="org.eclipse.jetty" level="WARN"/>
-    <logger name="io.netty" level="WARN"/>
+    <logger  name="com.percomp" additivity="true" level="INFO" />
+    <logger  name="com.percomp" additivity="true" level="DEBUG" />
+    <logger name="org.eclipse.jetty" level="INFO"/>
+    <logger name="io.netty" level="INFO"/>
 </configuration>

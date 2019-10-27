@@ -1,11 +1,13 @@
 package com.percomp.assistant.core.controller.aytos
 
+import com.percomp.assistant.core.config.backup.Logger
 import com.percomp.assistant.core.controller.retriever.Address
 import com.percomp.assistant.core.controller.retriever.Certificateless
 import com.percomp.assistant.core.controller.retriever.Place
 import com.percomp.assistant.core.controller.retriever.Towns
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import java.net.UnknownHostException
 
 
 /**
@@ -19,11 +21,17 @@ import org.jsoup.nodes.Document
  */
 class SanVicenteDelPalacio : Certificateless() {
 
+    val log = Logger.instance;
     val town = Towns.SANVICENTEDELPALACIO
     var data = ArrayList<Place>() // contact data of the ayto
 
     init {
-        data.add(updateContactData())
+        try {
+            data.add(updateContactData())
+        }
+        catch (e: UnknownHostException){
+            log.error("Unavailable $town host: '${town.url}'")
+        }
     }
 
     /**
@@ -31,12 +39,14 @@ class SanVicenteDelPalacio : Certificateless() {
      * @return A place information.
      */
     private fun updateContactData() : Place {
-        println(" >> Updating $town.")
+        log.warn(" >> Updating $town: ${town.url}")
         val ayto : Document =
             Jsoup.connect(town.url).sslSocketFactory(socketFactory()).get() // website parsed to doc
 
+        log.warn(" >> Received $town data.")
         val place = Place()
         // extract address
+        log.warn(" >> Extracting $town data...")
         val address = Address()
         ayto.select("div .address .name")  // get name
             .forEach { element ->
@@ -57,6 +67,8 @@ class SanVicenteDelPalacio : Certificateless() {
             .forEach { element ->
                 address.city = element.text()
             }
+
+        log.warn("Address: $address")
         place.address = address
 
 
@@ -77,6 +89,7 @@ class SanVicenteDelPalacio : Certificateless() {
             .forEach { element ->
                 place.urlExterna = element.text()
             }
+        log.warn("Place: $place")
 
         // return data
         return place

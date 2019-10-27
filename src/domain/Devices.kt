@@ -5,6 +5,4 @@ import org.jetbrains.exposed.sql.Table
 
 object Devices : Table(){
     val id = varchar("id", Constants.IDENTIFIER ).primaryKey()
-    val salt = varchar("salt", Constants.SALT)
-    val password = varchar("password", Constants.SALT)
 }

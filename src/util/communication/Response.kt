@@ -1,6 +1,6 @@
 package com.percomp.assistant.core.util.communication
 
-import org.json.JSONArray
+import com.percomp.assistant.core.controller.retriever.Place
 
 
 /**
@@ -8,6 +8,10 @@ import org.json.JSONArray
  */
 data class Response(
     val action : RaspiAction,
-    var status : String?,
-    var config : JSONArray
+    var status : Int = 404,
+    var data : ResponseData? = null
+)
+
+data class ResponseData(
+    var places : List<Place>? = null
 )

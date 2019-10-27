@@ -1,12 +1,8 @@
 package com.percomp.assistant.core.dao
 
-import com.percomp.assistant.core.domain.Devices
-import com.percomp.assistant.core.domain.Registry
-import com.percomp.assistant.core.domain.Relation
-import com.percomp.assistant.core.domain.Status
+import com.percomp.assistant.core.domain.*
 import com.percomp.assistant.core.model.User
 import com.percomp.assistant.core.util.Credentials
-import com.percomp.assistant.core.util.communication.Users
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.Dispatchers
@@ -41,7 +37,7 @@ object DatabaseFactory {
                 Users.insert {
                     it[Users.username] = Credentials.ADMIN_USERNAME.value
                     it[Users.password] = Credentials.ADMIN_PASSWORD.value
-                    it[Users.name] = Credentials.ADMIN_NAME.value
+                    it[Users.salt] = Credentials.ADMIN_SALT.value
                 }
             }
         }

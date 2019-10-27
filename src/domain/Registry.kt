@@ -2,7 +2,6 @@ package com.percomp.assistant.core.domain
 
 import com.percomp.assistant.core.util.Constants
 import com.percomp.assistant.core.util.communication.RaspiAction
-import com.percomp.assistant.core.util.communication.Users
 import org.jetbrains.exposed.sql.Table
 
 object Registry : Table() {

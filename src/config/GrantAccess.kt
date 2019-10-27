@@ -1,5 +1,6 @@
 package  com.percomp.assistant.core.config
 
+import com.percomp.assistant.core.dao.UserDAO
 import io.ktor.util.KtorExperimentalAPI
 
 /**
@@ -16,6 +17,7 @@ suspend fun checkUri(uri : String, auth : String?) : Boolean {
         "/refreshtoken" in uri      -> true
         "/" == uri                  -> true
         "test" in uri               -> true
+        "towns" in uri               -> true
 
         // only workers
         "/worker/" in uri           -> checkIfWorks(auth)
@@ -37,9 +39,9 @@ private suspend fun checkIfWorks(accessToken: String?) : Boolean {
 
     if (accessToken == null) return false
 
-    // if [accessToken] hasn't got the struct of a token, return false, else, get the user nested for it
-    val u = checkAccessToken(accessToken.cleanTokenTag()) ?: return false
+    // if [accessToken] hasn't got the struct of a token, return false, else, get the user/device nested for it
+    val identifier = checkAccessToken(accessToken.cleanTokenTag()) ?: return false
 
-    // if (u.range == UserRange.USER) return false
-    return true
+    // check if identifier exist al worker
+    return UserDAO().checkExists(identifier)
 }

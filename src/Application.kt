@@ -6,6 +6,9 @@ import com.percomp.assistant.core.config.oauth.InMemoryIdentityCustom
 import com.percomp.assistant.core.config.oauth.InMemoryTokenStoreCustom
 import com.percomp.assistant.core.controller.retriever.*
 import com.percomp.assistant.core.dao.DatabaseFactory
+import com.percomp.assistant.core.dao.UserDAO
+import com.percomp.assistant.core.services.retrieve
+import com.percomp.assistant.core.services.user
 import com.percomp.assistant.core.util.Credentials
 import io.ktor.application.*
 import io.ktor.auth.*
@@ -19,7 +22,6 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.locations.*
-import io.ktor.request.host
 import io.ktor.request.uri
 import io.ktor.response.respond
 import io.ktor.routing.get
@@ -39,7 +41,6 @@ import java.time.Duration
 
 
 lateinit var tokenStore: InMemoryTokenStore
-
 
 /**
  * Access to Assistant Core API.
@@ -72,6 +73,8 @@ fun Application.coreModule() {
     // init database
     DatabaseFactory.init()
 
+    // Generate instance of logger
+    com.percomp.assistant.core.config.backup.Logger.instance = log
 
     // instance of tokenStore for OAuth authentication
     tokenStore = InMemoryTokenStoreCustom.get()
@@ -145,18 +148,10 @@ fun Application.coreModule() {
     // Execute the retriever
     IScheduledRetriever.init()
 
-    // In this moment only [/test], but in un future then I put here the service modules
     routing {
-        get("test/{town}"){
-            try {
-                println("New request from [${call.request.origin.remoteHost}]")
-                val town : String = call.parameters["town"] ?: ""
-                val places = IScheduledRetriever.get(Towns.valueOf(town.toUpperCase()))
-                call.respond(HttpStatusCode.OK, Response("ALIVE", places))
-            } catch (e : Exception){
-             call.respond(HttpStatusCode.Conflict)
-            }
-        }
+        alive()
+        retrieve()
+        user()
     }
 }
 

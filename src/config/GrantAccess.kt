@@ -1,6 +1,7 @@
 package  com.percomp.assistant.core.config
 
 import com.percomp.assistant.core.dao.UserDAO
+import com.percomp.assistant.core.model.UserType
 import io.ktor.util.KtorExperimentalAPI
 
 /**
@@ -17,10 +18,11 @@ suspend fun checkUri(uri : String, auth : String?) : Boolean {
         "/refreshtoken" in uri      -> true
         "/" == uri                  -> true
         "test" in uri               -> true
-        "towns" in uri               -> true
+        "towns" in uri              -> true
 
         // only workers
-        "/worker/" in uri           -> checkIfWorks(auth)
+        "/worker/" in uri           -> checkIfWorks(auth, UserType.USER)
+        "/device/" in uri           -> checkIfWorks(auth, UserType.DEVICE)
 
         // everyone authenticated -> devices
         else                        ->
@@ -31,17 +33,11 @@ suspend fun checkUri(uri : String, auth : String?) : Boolean {
 
 /**
  * Private function to check if a request was done by a worker of the system.
- * @param [accessToken] should be the token of some worker.
- * @return [True] if the access token is nested for a worker.
+ * @param [accessToken] should be the token of some type.
+ * @param [type] to check.
+ * @return [True] if the access token is nested for the inputted type.
  */
 @KtorExperimentalAPI
-private suspend fun checkIfWorks(accessToken: String?) : Boolean {
-
-    if (accessToken == null) return false
-
-    // if [accessToken] hasn't got the struct of a token, return false, else, get the user/device nested for it
-    val identifier = checkAccessToken(accessToken.cleanTokenTag()) ?: return false
-
-    // check if identifier exist al worker
-    return UserDAO().checkExists(identifier)
+private suspend fun checkIfWorks(accessToken: String?, type : UserType) : Boolean {
+    return  (checkAccessToken(accessToken!!.cleanTokenTag()) == type)
 }

@@ -4,6 +4,7 @@ import com.percomp.assistant.core.config.Token
 import com.percomp.assistant.core.config.newTokens
 import com.percomp.assistant.core.config.oauth.InMemoryTokenStoreCustom
 import com.percomp.assistant.core.dao.UserDAO
+import com.percomp.assistant.core.model.UserType
 import com.percomp.assistant.core.services.CredentialRequest
 import com.percomp.assistant.core.services.Tokens
 import com.percomp.assistant.core.tokenStore
@@ -26,4 +27,11 @@ class UserCtrl {
         // return it
         return tokens
     }
+
+    suspend fun exist(username: String) : UserType? {
+        if (username.isNullOrEmpty()) return null
+        if (!UserDAO().checkExists(username)) return null
+        return UserType.USER
+    }
+
 }

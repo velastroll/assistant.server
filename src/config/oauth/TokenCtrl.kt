@@ -1,6 +1,9 @@
 package com.percomp.assistant.core.config
 
 
+import com.percomp.assistant.core.controller.services.DeviceCtrl
+import com.percomp.assistant.core.controller.services.UserCtrl
+import com.percomp.assistant.core.model.UserType
 import com.percomp.assistant.core.tokenStore
 import io.ktor.auth.OAuth2Exception
 import io.ktor.util.KtorExperimentalAPI
@@ -27,11 +30,12 @@ fun String.cleanTokenTag() : String{
  */
 @Throws(OAuth2Exception.InvalidGrant::class)
 @KtorExperimentalAPI
-suspend fun checkAccessToken(access_token: String) : String?{
+suspend fun checkAccessToken(access_token: String) : UserType?{
     val accessToken = tokenStore.accessToken(access_token) ?: throw OAuth2Exception.InvalidGrant("Invalid credentials")
 
-    // return user from database to check parameters
-    return "return user != null -> exist on db"
+    var toReturn = DeviceCtrl().exist(mac = accessToken.identity!!.username)
+    if (toReturn == null) toReturn = UserCtrl().exist(accessToken.identity!!.username)
+    return toReturn
 }
 
 /**

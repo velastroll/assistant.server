@@ -1,12 +1,7 @@
 package com.percomp.assistant.core.model
 
-data class User(
+data class Device(
     val username : String
 ){
     lateinit var password : String
-}
-
-enum class UserType{
-    USER,
-    DEVICE
 }

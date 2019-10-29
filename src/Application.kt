@@ -7,6 +7,7 @@ import com.percomp.assistant.core.config.oauth.InMemoryTokenStoreCustom
 import com.percomp.assistant.core.controller.retriever.*
 import com.percomp.assistant.core.dao.DatabaseFactory
 import com.percomp.assistant.core.dao.UserDAO
+import com.percomp.assistant.core.services.devices
 import com.percomp.assistant.core.services.retrieve
 import com.percomp.assistant.core.services.user
 import com.percomp.assistant.core.util.Credentials
@@ -113,9 +114,7 @@ fun Application.coreModule() {
 
     // JSon converter
     install(ContentNegotiation) {
-        gson {
-            setPrettyPrinting()
-        }
+        gson()
     }
 
     //install CORS
@@ -152,6 +151,7 @@ fun Application.coreModule() {
         alive()
         retrieve()
         user()
+        devices()
     }
 }
 

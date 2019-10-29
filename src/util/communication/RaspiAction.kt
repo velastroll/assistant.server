@@ -13,20 +13,9 @@ package com.percomp.assistant.core.util.communication
  */
 public enum class RaspiAction{
 
-    /**
-     * R: I have credentials, and I'm still alive
-     * S: {Action: "ALIVE", status: "OK"} or Http.Unauthorized
-     */ ALIVE,
-
-    // if R receive an Unauthorized response, it try to login with a request at the specific service.
-    // so S should reply the Tokens, or Unauthorized.
-
-    /**
-     * R: {action: "ALIVE"}
-     * S: {action: "CONFIG", status: "OK", data: Configuration}
-     * R: {action: "CONFIG", status "OK"} ||  {action: "CONFIG", status "ERROR", data: ErrorMsg}
-     * S: {Action: "ALIVE", status: "OK"}
-     */ CONFIG
+    ALIVE,
+    CONFIG,
+    LOGIN
 
 ,
 

@@ -8,7 +8,9 @@ import com.percomp.assistant.core.util.communication.Response
 import io.ktor.application.call
 import io.ktor.auth.OAuth2Exception
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.Parameters
 import io.ktor.request.receive
+import io.ktor.request.receiveParameters
 import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.post
@@ -22,8 +24,9 @@ fun Route.alive(){
             try {
                 log.warn("/device/login")
                 // retrieve data
-                val request = call.receive<CredentialRequest>()
-                log.warn("/device/login : request = $request")
+                val postParameters: Parameters = call.receiveParameters()
+                log.warn("/device/login : request = $postParameters")
+                val request = CredentialRequest(user = postParameters["user"]!!, password = postParameters["password"]!!)
                 // check account
                 val auth = DeviceCtrl().check(request)
                 log.warn("/device/login : auth=$auth")
@@ -44,8 +47,8 @@ fun Route.alive(){
                 } catch (e: BaseApplicationResponse.ResponseAlreadySentException){
                 }
             }
-
         }
+
 
         post("alive"){
             // TODO: extract device from Auth

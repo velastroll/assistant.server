@@ -3,8 +3,12 @@ package com.percomp.assistant.core.controller.services
 import com.percomp.assistant.core.config.Token
 import com.percomp.assistant.core.config.newTokens
 import com.percomp.assistant.core.dao.DeviceDAO
+import com.percomp.assistant.core.dao.StatusDAO
+import com.percomp.assistant.core.model.Device
+import com.percomp.assistant.core.model.State
 import com.percomp.assistant.core.model.UserType
 import com.percomp.assistant.core.services.CredentialRequest
+import com.percomp.assistant.core.util.communication.RaspiAction
 import io.ktor.auth.OAuth2Exception
 
 class DeviceCtrl {
@@ -14,13 +18,11 @@ class DeviceCtrl {
         // check if user exist on db
         if (auth.user.isNullOrEmpty()) throw OAuth2Exception.InvalidGrant("Not valid user")
         if (auth.password.isNullOrEmpty()) throw OAuth2Exception.InvalidGrant("Not valid password")
-
         // check it on db
-        DeviceDAO().check(auth.user, auth.password)
 
+        if (!DeviceDAO().check(auth.user, auth.password)) throw OAuth2Exception.InvalidGrant("Not valid user or password.")
         // store tokens
         val tokens = newTokens(username = auth.user)
-
         // return it
         return tokens
     }
@@ -39,5 +41,17 @@ class DeviceCtrl {
 
         // create imei
         DeviceDAO().post(mac = mac)
+    }
+
+    suspend fun getAll(): List<State?> {
+        // retrieve all
+        val devices = DeviceDAO().getAll()
+        val status = ArrayList<State?>()
+        // retrieve the last status
+        for ( d in devices ) {
+            val state = StatusDAO().get(mac=d.username)
+            status.add(state)
+        }
+        return status
     }
 }

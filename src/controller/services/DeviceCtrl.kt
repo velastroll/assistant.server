@@ -3,6 +3,7 @@ package com.percomp.assistant.core.controller.services
 import com.percomp.assistant.core.config.Token
 import com.percomp.assistant.core.config.newTokens
 import com.percomp.assistant.core.dao.DeviceDAO
+import com.percomp.assistant.core.dao.RelationDAO
 import com.percomp.assistant.core.dao.StatusDAO
 import com.percomp.assistant.core.model.Device
 import com.percomp.assistant.core.model.State
@@ -49,8 +50,12 @@ class DeviceCtrl {
         val status = ArrayList<State?>()
         // retrieve the last status
         for ( d in devices ) {
+            //retrieve status
             val state = StatusDAO().get(mac=d.username)
             status.add(state)
+            // retrieve owner
+            val owner = RelationDAO().get(device = d.username)
+            d.owner = owner
         }
         return status
     }

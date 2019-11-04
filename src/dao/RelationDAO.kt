@@ -1,87 +1,35 @@
 package com.percomp.assistant.core.dao
 
-import com.percomp.assistant.core.config.backup.Logger
 import com.percomp.assistant.core.dao.DatabaseFactory.dbQuery
 import com.percomp.assistant.core.domain.Devices
+import com.percomp.assistant.core.domain.People
 import com.percomp.assistant.core.domain.Relation
-import com.percomp.assistant.core.domain.Users
-import com.percomp.assistant.core.model.Device
-import com.percomp.assistant.core.model.User
+import com.percomp.assistant.core.model.Person
 import com.percomp.assistant.core.util.Constants
-import io.ktor.auth.OAuth2Exception
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.update
 import org.joda.time.Instant
-import java.security.MessageDigest
 
 class RelationDAO {
 
-    /**
-     * Check if the combination of user and password exist on the DB.
-     * @param username
-     * @param password
-     * @return User or null
-     **/
-    suspend fun check(username: String?, password: String?): User? = dbQuery {
-        if (username.isNullOrEmpty()) throw IllegalArgumentException("Checking user: the username is too short.")
-        if (username.length > Constants.USERNAME) throw IllegalArgumentException("Checking user: The username is too long.")
-        if (password.isNullOrEmpty()) throw IllegalArgumentException("Checking user: the password is too short.")
-        if (password.length > Constants.PASSWORD) throw IllegalArgumentException("Checking user: The password is too long.")
-
-        var salt = ""
-        var pass: String? = null
-        var user: User? = null
-        val usrLC = username.toLowerCase()
-
-        // Get an account with this username
-        Users.select { Users.username eq usrLC }.map {
-            salt = it[Users.salt]
-            pass = it[Users.password]
-            user = User(
-                // return only this, but in a future it's possible to return more info
-                username = username
-            )
-        }
-
-        // Check if the account exists, or if the parameters are correct
-        if (salt.isNullOrEmpty()) null
-        if (pass != (password + salt).sha512()) null
-        else user
-    }
-
-    /**
-     * Check if the user exists
-     * @param username
-     * @return true or false
-     **/
-    suspend fun checkExists(username: String): Boolean = dbQuery {
-
-        var usr: User? = null
-        val usrLC = username.toLowerCase()
-        // Get an account with this username
-        Users.select { Users.username eq usrLC }.map {
-            usr = User(
-                username = username
-            )
-        }
-        usr != null
-    }
 
     /**
      * Create a new user in the database.
      * @param signUp is the form to sign up in the system.
      */
-    suspend fun post(username: String, device: String) = dbQuery {
+    suspend fun post(nif: String, device: String) = dbQuery {
 
         // crypt password
-        val usrLC = username.toLowerCase()
+        val nifUC = nif.toUpperCase()
         val id = (1..Constants.SALT)
             .map { kotlin.random.Random.nextInt(0, Constants.CHARPOOL.size) }
             .map(Constants.CHARPOOL::get)
             .joinToString("")
         // insert
-Relation.insert {
-            it[Relation.user] = usrLC
+        Relation.insert {
+            it[Relation.person] = nifUC
             it[Relation.device] = device
             it[Relation.id] = id
             it[Relation.from] = Instant.now().toString()
@@ -89,13 +37,45 @@ Relation.insert {
     }
 
 
-    private fun String.sha512(): String {
-        return this.hashWithAlgorithm("SHA-512")
+    /**
+     * Retrieve the last relation of a specific device.
+     * @param mac identifier of the device
+     */
+    suspend fun get(mac : String) = dbQuery {
+        // retrieve a specific relation by mac device.
+        Relation.select({Relation.device eq mac})
+            .orderBy(Relation.from, isAsc = false)
+            .map {
+
+                // retrieve user
+                val user = People
+                    .select({People.nie eq it[Relation.person]})
+                    .map {
+                        Person(
+                            name = it[People.name],
+                            nif = it[People.nie]) }
+                    .first()
+
+                // return relation
+                com.percomp.assistant.core.model.Relation(
+                    user = user,
+                    from = it[Relation.from],
+                    to = it[Relation.to]
+                )
+            }.firstOrNull()
     }
 
-    private fun String.hashWithAlgorithm(algorithm: String): String {
-        val digest = MessageDigest.getInstance(algorithm)
-        val bytes = digest.digest(this.toByteArray(Charsets.UTF_8))
-        return bytes.fold("") { str, it -> str + "%02x".format(it) }
+    /**
+     * End the active relation of a specified device.
+     * @param mac device identifier
+     */
+    suspend fun finish(mac: String) = dbQuery{
+        Relation.update (
+            {
+                Relation.device eq mac and (Relation.to.isNull())
+            }){
+                it[Relation.to] = Instant.now().toString()
+        }
     }
+
 }

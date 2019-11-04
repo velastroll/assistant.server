@@ -8,6 +8,7 @@ import com.percomp.assistant.core.controller.retriever.*
 import com.percomp.assistant.core.dao.DatabaseFactory
 import com.percomp.assistant.core.dao.UserDAO
 import com.percomp.assistant.core.services.devices
+import com.percomp.assistant.core.services.relation
 import com.percomp.assistant.core.services.retrieve
 import com.percomp.assistant.core.services.user
 import com.percomp.assistant.core.util.Credentials
@@ -152,6 +153,7 @@ fun Application.coreModule() {
         retrieve()
         user()
         devices()
+        relation()
     }
 }
 

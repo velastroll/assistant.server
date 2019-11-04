@@ -1,13 +1,9 @@
 package com.percomp.assistant.core.dao
 
-import com.percomp.assistant.core.config.backup.Logger
 import com.percomp.assistant.core.dao.DatabaseFactory.dbQuery
-import com.percomp.assistant.core.domain.Devices
 import com.percomp.assistant.core.domain.Users
-import com.percomp.assistant.core.model.Device
 import com.percomp.assistant.core.model.User
 import com.percomp.assistant.core.util.Constants
-import io.ktor.auth.OAuth2Exception
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import java.security.MessageDigest

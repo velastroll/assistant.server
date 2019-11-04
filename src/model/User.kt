@@ -10,3 +10,8 @@ enum class UserType{
     USER,
     DEVICE
 }
+
+data class Person(
+    var name : String,
+    var nif : String
+)

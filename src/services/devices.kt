@@ -12,7 +12,6 @@ import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.route
 import io.ktor.server.engine.BaseApplicationResponse
-import io.ktor.util.error
 
 fun Route.devices(){
 
@@ -49,8 +48,8 @@ fun Route.devices(){
                 } catch (e: BaseApplicationResponse.ResponseAlreadySentException){
                 }
             }
-
         }
+
     }
 
 

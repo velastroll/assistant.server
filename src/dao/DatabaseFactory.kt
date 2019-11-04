@@ -22,10 +22,10 @@ object DatabaseFactory {
             // create the tables
             create(Users)
             create(Devices)
+            create(People)
             create(Relation)
             create(Registry)
             create(Status)
-
 
             // insert admin account
             val check = (Users).select{

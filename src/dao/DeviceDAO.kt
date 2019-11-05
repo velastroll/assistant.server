@@ -19,60 +19,48 @@ class DeviceDAO {
 
     /**
      * Check if the combination of user and password exist on the DB.
-     * @param username
+     * @param mac
      * @param password
      * @return Boolean
      **/
-    suspend fun check(username: String?, password: String?): Boolean = dbQuery {
-        if (username.isNullOrEmpty()) throw IllegalArgumentException("Checking user: the username is too short.")
-        if (username.length > 17) throw IllegalArgumentException("Checking user: The username is too long.")
+    suspend fun check(mac: String?, password: String?): Boolean = dbQuery {
+        if (mac.isNullOrEmpty()) throw IllegalArgumentException("Checking user: the username is too short.")
+        if (mac.length > 17) throw IllegalArgumentException("Checking user: The username is too long.")
         if (password.isNullOrEmpty()) throw IllegalArgumentException("Checking user: the password is too short.")
 
-        var salt = ""
-        var pass: String? = null
-        var device: Device? = null
-        val id = username
-
         // If the combination is right return true, and create a new device if does not exist yet.
-        if (decode(password).equals(username)){
-            println("++ VALID Password")
+        if (decode(password).equals(mac)){
             runBlocking {
-                if (!checkExists(username)){
-                    print("Creando un usuario...")
-                    val a = DeviceDAO().post(mac = username)
-                    println("Creado: $a")
+                if (checkExists(mac) == null){
+                    DeviceDAO().post(mac = mac)
                 }
             }
             runBlocking {
                 // update their status
-                print("actualizando status...")
-                val s = StatusDAO().post(username, RaspiAction.LOGIN)
-                println("Actualizado: $s")
+                StatusDAO().post(mac, RaspiAction.LOGIN)
             }
             return@dbQuery true
         }
         else {
-            println("-- INVALID password")
             false
         }
     }
 
     /**
      * Check if the user exists
-     * @param username
+     * @param mac
      * @return true or false
      **/
-    suspend fun checkExists(username: String): Boolean = dbQuery {
+    suspend fun checkExists(mac: String): Device? = dbQuery {
 
         var device: Device? = null
-        val mac = username
         // Get an account with this username
         Devices.select { Devices.id eq mac }.map {
             device = Device(
-                username = username
+                mac = mac
             )
         }
-        device != null
+        device
     }
 
     /**
@@ -90,7 +78,7 @@ class DeviceDAO {
      */
     suspend fun getAll(): List<Device> = dbQuery{
         Devices.selectAll().map{
-            Device(username = it[Devices.id])
+            Device(mac = it[Devices.id])
         }
     }
 
@@ -114,6 +102,7 @@ class DeviceDAO {
         val bytes = digest.digest(this.toByteArray(Charsets.UTF_8))
         return bytes.fold("") { str, it -> str + "%02x".format(it) }
     }
+
 
 
 }

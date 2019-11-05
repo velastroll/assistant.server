@@ -11,5 +11,5 @@ object Users : Table() {
 
 object People : Table() {
     val nie = varchar("nie", 15).primaryKey()
-    val name = varchar("id", Constants.USERNAME)
+    val name = varchar("name", Constants.USERNAME)
 }

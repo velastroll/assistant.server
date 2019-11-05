@@ -2,35 +2,41 @@ package com.percomp.assistant.core.services
 
 import com.percomp.assistant.core.config.checkAccessToken
 import com.percomp.assistant.core.config.cleanTokenTag
-import com.percomp.assistant.core.controller.services.UserCtrl
-import com.percomp.assistant.core.model.Person
+import com.percomp.assistant.core.controller.services.DeviceCtrl
+import com.percomp.assistant.core.dao.DeviceDAO
 import io.ktor.application.call
 import io.ktor.auth.OAuth2Exception
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
 import io.ktor.response.respond
-import io.ktor.routing.Route
-import io.ktor.routing.post
-import io.ktor.routing.route
+import io.ktor.routing.*
 import io.ktor.server.engine.BaseApplicationResponse
-import java.lang.Exception
 
-fun Route.user() {
+fun Route.relation(){
+
+
+    /* for devices */
+    route("relation"){
+
+    }
+
+    /* For workers */
 
 
     route("worker"){
 
-        post("login"){
+        /** add relation for real person **/
+        post("relation"){
             try {
-                log.warn("/worker/login")
-                // retrieve data
-                val request = call.receive<CredentialRequest>()
-                log.warn("/worker/login : request = $request")
-                // check account
-                val auth = UserCtrl().check(request)
-                log.warn("/worker/login : auth=$auth")
-                // return credentials
-                call.respond(HttpStatusCode.OK, auth)
+                // check authrorization
+                val accesstoken = call.request.headers["Authorization"]!!.cleanTokenTag()
+                val worker = checkAccessToken(accesstoken)
+                val request = call.receive<RelationRequest>()
+                log.error("Access for $worker")
+                // add relation
+                DeviceCtrl().addRelation(nif= request.nif, device = request.device )
+                // respond it
+                call.respond(HttpStatusCode.OK, "Added relation.")
             }
             catch(e : OAuth2Exception.InvalidGrant){
                 try {
@@ -48,16 +54,16 @@ fun Route.user() {
             }
         }
 
-        post ("person"){
+        /** finish relation for real person **/
+        delete("relation/{device}"){
             try {
-                // check authorization
-                val accesstoken = call.request.headers["Authorization"]!!.cleanTokenTag()
-                val worker = checkAccessToken(accesstoken)
-                val person = call.receive<Person>()
+                // retrieve device
+                val mac = call.parameters["device"] ?: throw IllegalArgumentException("No specified device.")
+                // check if has any relation
+                DeviceCtrl().finishRelation(mac = mac)
 
-                UserCtrl().addPerson(person)
-
-                call.respond(HttpStatusCode.OK)
+                // respond
+                call.respond(HttpStatusCode.OK, "Finished relation.")
             }
             catch(e : OAuth2Exception.InvalidGrant){
                 try {
@@ -78,19 +84,7 @@ fun Route.user() {
     }
 }
 
-
-
-data class CredentialRequest(
-    val user: String,
-    val password: String
-)
-
-data class Tokens (
-    val access_token: String,
-    val refresh_token : String
-)
-
-data class Response (
-    val status: Int,
-    val description : String
+data class RelationRequest(
+    var nif : String,
+    var device : String
 )

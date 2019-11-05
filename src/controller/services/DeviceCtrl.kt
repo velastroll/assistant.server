@@ -58,6 +58,7 @@ class DeviceCtrl {
             // retrieve relation
             val relation = RelationDAO().get(mac = d.mac)
             d.relation = relation
+            d.status = status
         }
         return devices
     }

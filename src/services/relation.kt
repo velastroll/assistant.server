@@ -21,7 +21,11 @@ fun Route.relation(){
     }
 
     /* For workers */
+
+
     route("worker"){
+
+        /** add relation for real person **/
         post("relation"){
             try {
                 // check authrorization
@@ -30,7 +34,7 @@ fun Route.relation(){
                 val request = call.receive<RelationRequest>()
                 log.error("Access for $worker")
                 // add relation
-                DeviceCtrl().addRelation(nif= request.nif, device = request.nif )
+                DeviceCtrl().addRelation(nif= request.nif, device = request.device )
                 // respond it
                 call.respond(HttpStatusCode.OK, "Added relation.")
             }
@@ -50,6 +54,7 @@ fun Route.relation(){
             }
         }
 
+        /** finish relation for real person **/
         delete("relation/{device}"){
             try {
                 // retrieve device

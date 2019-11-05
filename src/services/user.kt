@@ -1,6 +1,9 @@
 package com.percomp.assistant.core.services
 
+import com.percomp.assistant.core.config.checkAccessToken
+import com.percomp.assistant.core.config.cleanTokenTag
 import com.percomp.assistant.core.controller.services.UserCtrl
+import com.percomp.assistant.core.model.Person
 import io.ktor.application.call
 import io.ktor.auth.OAuth2Exception
 import io.ktor.http.HttpStatusCode
@@ -28,6 +31,33 @@ fun Route.user() {
                 log.warn("/worker/login : auth=$auth")
                 // return credentials
                 call.respond(HttpStatusCode.OK, auth)
+            }
+            catch(e : OAuth2Exception.InvalidGrant){
+                try {
+                    log.warn("Unauthorized: $e")
+                    call.respond(HttpStatusCode.Unauthorized)
+                } catch (e: BaseApplicationResponse.ResponseAlreadySentException){
+                }
+            }
+            catch(e : Exception){
+                try {
+                    log.warn("Internal error: $e")
+                    call.respond(HttpStatusCode.InternalServerError)
+                } catch (e: BaseApplicationResponse.ResponseAlreadySentException){
+                }
+            }
+        }
+
+        post ("person"){
+            try {
+                // check authorization
+                val accesstoken = call.request.headers["Authorization"]!!.cleanTokenTag()
+                val worker = checkAccessToken(accesstoken)
+                val person = call.receive<Person>()
+
+                UserCtrl().addPerson(person)
+
+                call.respond(HttpStatusCode.OK)
             }
             catch(e : OAuth2Exception.InvalidGrant){
                 try {

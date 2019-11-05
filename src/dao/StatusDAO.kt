@@ -1,5 +1,6 @@
 package com.percomp.assistant.core.dao
 
+import com.percomp.assistant.core.config.backup.Logger
 import com.percomp.assistant.core.dao.DatabaseFactory.dbQuery
 import com.percomp.assistant.core.domain.Status
 import com.percomp.assistant.core.model.State
@@ -13,9 +14,14 @@ class StatusDAO{
 
     suspend fun get( mac : String ) = dbQuery {
         // TODO: improve this
-        Status.select ({ Status.device eq mac }).orderBy( Status.timestamp, isAsc = false ).map {
+        val s = Status.select ({ Status.device eq mac }).orderBy( Status.timestamp, isAsc = false ).map {
             State(device = it[Status.device], state = it[Status.status], timestamp = it[Status.timestamp])
         }.firstOrNull()
+
+
+        Logger.instance.info("$s")
+
+        return@dbQuery s
     }
 
     suspend fun post( mac : String, status : RaspiAction ) = dbQuery {

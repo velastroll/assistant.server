@@ -59,8 +59,9 @@ fun Route.alive(){
             // check authrorization
             var accesstoken = call.request.headers["Authorization"] ?: throw OAuth2Exception.InvalidGrant("Unauthorized.")
             accesstoken = accesstoken.cleanTokenTag()
-            val device = checkAccessToken(UserType.DEVICE, accesstoken)
+            val device = checkAccessToken(UserType.DEVICE, accesstoken) ?: throw OAuth2Exception.InvalidGrant("Unauthorized.")
             // TODO: save state on DB
+            DeviceCtrl().alive(device)
 
             // TODO: check pending actions
 

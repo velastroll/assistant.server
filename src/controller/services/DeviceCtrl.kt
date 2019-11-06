@@ -82,4 +82,8 @@ class DeviceCtrl {
         RelationDAO().finish(mac = device.mac)
 
     }
+
+    suspend fun alive(device: String) {
+        StatusDAO().post(device, RaspiAction.ALIVE)
+    }
 }

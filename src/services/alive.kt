@@ -1,6 +1,9 @@
 package com.percomp.assistant.core
 
+import com.percomp.assistant.core.config.checkAccessToken
+import com.percomp.assistant.core.config.cleanTokenTag
 import com.percomp.assistant.core.controller.services.DeviceCtrl
+import com.percomp.assistant.core.model.UserType
 import com.percomp.assistant.core.services.CredentialRequest
 import com.percomp.assistant.core.services.log
 import com.percomp.assistant.core.util.communication.RaspiAction
@@ -13,6 +16,7 @@ import io.ktor.request.receive
 import io.ktor.request.receiveParameters
 import io.ktor.response.respond
 import io.ktor.routing.Route
+import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
 import io.ktor.server.engine.BaseApplicationResponse
@@ -50,9 +54,12 @@ fun Route.alive(){
         }
 
 
-        post("alive"){
+        get("alive"){
             // TODO: extract device from Auth
-
+            // check authrorization
+            var accesstoken = call.request.headers["Authorization"] ?: throw OAuth2Exception.InvalidGrant("Unauthorized.")
+            accesstoken = accesstoken.cleanTokenTag()
+            val device = checkAccessToken(UserType.DEVICE, accesstoken)
             // TODO: save state on DB
 
             // TODO: check pending actions

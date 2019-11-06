@@ -30,10 +30,10 @@ class DeviceCtrl {
         return tokens
     }
 
-    suspend fun exist(mac: String) : UserType? {
+    suspend fun exist(mac: String) : Device? {
         if (mac.isNullOrEmpty()) return null
-        if (DeviceDAO().checkExists(mac) == null) return null
-        return UserType.DEVICE
+        val device = DeviceDAO().checkExists(mac) ?: return null
+        return device
     }
 
     suspend fun create(mac : String){

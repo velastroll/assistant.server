@@ -7,6 +7,7 @@ import com.percomp.assistant.core.dao.PeopleDAO
 import com.percomp.assistant.core.dao.UserDAO
 import com.percomp.assistant.core.domain.People
 import com.percomp.assistant.core.model.Person
+import com.percomp.assistant.core.model.User
 import com.percomp.assistant.core.model.UserType
 import com.percomp.assistant.core.services.CredentialRequest
 import com.percomp.assistant.core.services.Tokens
@@ -32,10 +33,9 @@ class UserCtrl {
         return tokens
     }
 
-    suspend fun exist(username: String) : UserType? {
+    suspend fun exist(username: String) : User? {
         if (username.isNullOrEmpty()) return null
-        if (!UserDAO().checkExists(username)) return null
-        return UserType.USER
+        return UserDAO().checkExists(username)
     }
 
     suspend fun addPerson(person: Person) {
@@ -43,6 +43,11 @@ class UserCtrl {
         if (person.name.length < 9) throw IllegalArgumentException("Not valid name.")
 
         PeopleDAO().post(nif = person.nif, name = person.name)
+    }
+
+    suspend fun retrievePeople(): List<Person> {
+        // return the list or an empty list
+        return PeopleDAO().getAll() ?: ArrayList()
     }
 
 }

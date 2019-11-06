@@ -1,8 +1,11 @@
 package com.percomp.assistant.core.services
 
 import com.percomp.assistant.core.config.backup.Logger
+import com.percomp.assistant.core.config.checkAccessToken
+import com.percomp.assistant.core.config.cleanTokenTag
 import com.percomp.assistant.core.controller.retriever.IScheduledRetriever
 import com.percomp.assistant.core.controller.retriever.Towns
+import com.percomp.assistant.core.model.UserType
 import com.percomp.assistant.core.util.communication.RaspiAction
 import com.percomp.assistant.core.util.communication.Response
 import com.percomp.assistant.core.util.communication.ResponseData
@@ -23,7 +26,8 @@ fun Route.retrieve(){
         post(){
             try {
                 // TODO: extract device from Auth
-
+                val accesstoken = call.request.headers["Authorization"]!!.cleanTokenTag()
+                val worker = checkAccessToken(UserType.USER, accesstoken)
                 // retrieve the data
                 val town : String = call.parameters["town"] ?: ""
                 val places = IScheduledRetriever.get(Towns.valueOf(town.toUpperCase()))

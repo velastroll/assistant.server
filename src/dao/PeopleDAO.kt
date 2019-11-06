@@ -9,6 +9,7 @@ import com.percomp.assistant.core.model.User
 import com.percomp.assistant.core.util.Constants
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
 import java.security.MessageDigest
 
 class PeopleDAO {
@@ -58,5 +59,16 @@ People.insert {
         val digest = MessageDigest.getInstance(algorithm)
         val bytes = digest.digest(this.toByteArray(Charsets.UTF_8))
         return bytes.fold("") { str, it -> str + "%02x".format(it) }
+    }
+
+    suspend fun getAll() : List<Person>? = dbQuery {
+        People.selectAll()
+            .map {
+                // TODO: add both town as home and other values
+                Person(
+                    nif = it[People.nie],
+                    name = it[People.name]
+                )
+            }
     }
 }

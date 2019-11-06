@@ -30,12 +30,15 @@ fun String.cleanTokenTag() : String{
  */
 @Throws(OAuth2Exception.InvalidGrant::class)
 @KtorExperimentalAPI
-suspend fun checkAccessToken(access_token: String) : UserType?{
+suspend fun checkAccessToken(device : UserType, access_token: String) : String? {
     val accessToken = tokenStore.accessToken(access_token) ?: throw OAuth2Exception.InvalidGrant("Invalid credentials")
-
     var toReturn = DeviceCtrl().exist(mac = accessToken.identity!!.username)
-    if (toReturn == null) toReturn = UserCtrl().exist(accessToken.identity!!.username)
-    return toReturn
+    if (toReturn != null && device == UserType.DEVICE) return toReturn.mac
+    else {
+        var user = UserCtrl().exist(accessToken.identity!!.username)
+        if (user == null) return null
+        else return user.username
+    }
 }
 
 /**

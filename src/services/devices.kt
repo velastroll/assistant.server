@@ -4,6 +4,7 @@ import com.percomp.assistant.core.config.checkAccessToken
 import com.percomp.assistant.core.config.cleanTokenTag
 import com.percomp.assistant.core.controller.services.DeviceCtrl
 import com.percomp.assistant.core.dao.DeviceDAO
+import com.percomp.assistant.core.model.UserType
 import io.ktor.application.call
 import io.ktor.auth.OAuth2Exception
 import io.ktor.http.HttpStatusCode
@@ -27,7 +28,7 @@ fun Route.devices(){
             try {
                 // check authrorization
                 val accesstoken = call.request.headers["Authorization"]!!.cleanTokenTag()
-                val worker = checkAccessToken(accesstoken)
+                val worker = checkAccessToken(UserType.USER, accesstoken)
                 log.error("Access for $worker")
                 // retrieve devices
                 val devices = DeviceCtrl().getAll()

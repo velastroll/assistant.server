@@ -10,6 +10,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.Route
+import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
 import io.ktor.server.engine.BaseApplicationResponse
@@ -58,6 +59,34 @@ fun Route.user() {
                 UserCtrl().addPerson(person)
 
                 call.respond(HttpStatusCode.OK)
+            }
+            catch(e : OAuth2Exception.InvalidGrant){
+                try {
+                    log.warn("Unauthorized: $e")
+                    call.respond(HttpStatusCode.Unauthorized)
+                } catch (e: BaseApplicationResponse.ResponseAlreadySentException){
+                }
+            }
+            catch(e : Exception){
+                try {
+                    log.warn("Internal error: $e")
+                    call.respond(HttpStatusCode.InternalServerError)
+                } catch (e: BaseApplicationResponse.ResponseAlreadySentException){
+                }
+            }
+        }
+
+        get("people") {
+            try {
+                // check authorization
+                val accesstoken = call.request.headers["Authorization"]!!.cleanTokenTag()
+                val worker = checkAccessToken(accesstoken)
+
+                // retrieve people
+                val people = UserCtrl().retrievePeople()
+
+                // return it
+                call.respond(HttpStatusCode.OK, people)
             }
             catch(e : OAuth2Exception.InvalidGrant){
                 try {

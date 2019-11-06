@@ -12,32 +12,21 @@ suspend fun checkUri(uri : String, auth : String?) : Boolean {
     return when{
 
         // public operations: to log in
-        "/api/conf/login" in uri    -> true
-        "/oauth" in uri             -> true
-        "login" in uri              -> true
-        "/refreshtoken" in uri      -> true
-        "/" == uri                  -> true
-        "test" in uri               -> true
-        "towns" in uri              -> true
+        "/api/conf/login" in uri    -> return true
+        "/oauth" in uri             -> return true
+        "login" in uri              -> return true
+        "/refreshtoken" in uri      -> return true
+        "/" == uri                  -> return true
+        "test" in uri               -> return true
+        "towns" in uri              -> return true
 
         // only workers
-        "/worker/" in uri           -> checkIfWorks(auth, UserType.USER)
-        "/device/" in uri           -> checkIfWorks(auth, UserType.DEVICE)
+        "/worker/" in uri           -> return (checkAccessToken(UserType.USER, auth!!.cleanTokenTag()) != null)
+        "/device/" in uri           -> return (checkAccessToken(UserType.DEVICE, auth!!.cleanTokenTag()) != null)
 
         // everyone authenticated -> devices
         else                        ->
-            (auth != null) && (checkAccessToken(auth.cleanTokenTag())!= null)
+            (auth != null) && (checkAccessToken(UserType.DEVICE, auth.cleanTokenTag()) != null)
     }
 }
 
-
-/**
- * Private function to check if a request was done by a worker of the system.
- * @param [accessToken] should be the token of some type.
- * @param [type] to check.
- * @return [True] if the access token is nested for the inputted type.
- */
-@KtorExperimentalAPI
-private suspend fun checkIfWorks(accessToken: String?, type : UserType) : Boolean {
-    return  (checkAccessToken(accessToken!!.cleanTokenTag()) == type)
-}

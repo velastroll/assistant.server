@@ -4,6 +4,7 @@ import com.percomp.assistant.core.config.checkAccessToken
 import com.percomp.assistant.core.config.cleanTokenTag
 import com.percomp.assistant.core.controller.services.UserCtrl
 import com.percomp.assistant.core.model.Person
+import com.percomp.assistant.core.model.UserType
 import io.ktor.application.call
 import io.ktor.auth.OAuth2Exception
 import io.ktor.http.HttpStatusCode
@@ -33,6 +34,8 @@ fun Route.user() {
                 // return credentials
                 call.respond(HttpStatusCode.OK, auth)
             }
+            catch (e: BaseApplicationResponse.ResponseAlreadySentException){
+            }
             catch(e : OAuth2Exception.InvalidGrant){
                 try {
                     log.warn("Unauthorized: $e")
@@ -53,12 +56,14 @@ fun Route.user() {
             try {
                 // check authorization
                 val accesstoken = call.request.headers["Authorization"]!!.cleanTokenTag()
-                val worker = checkAccessToken(accesstoken)
+                val worker = checkAccessToken(UserType.USER, accesstoken)
                 val person = call.receive<Person>()
 
                 UserCtrl().addPerson(person)
 
                 call.respond(HttpStatusCode.OK)
+            }
+            catch (e: BaseApplicationResponse.ResponseAlreadySentException){
             }
             catch(e : OAuth2Exception.InvalidGrant){
                 try {
@@ -80,13 +85,15 @@ fun Route.user() {
             try {
                 // check authorization
                 val accesstoken = call.request.headers["Authorization"]!!.cleanTokenTag()
-                val worker = checkAccessToken(accesstoken)
+                val worker = checkAccessToken(UserType.USER, accesstoken)
 
                 // retrieve people
                 val people = UserCtrl().retrievePeople()
 
                 // return it
                 call.respond(HttpStatusCode.OK, people)
+            }
+            catch (e: BaseApplicationResponse.ResponseAlreadySentException){
             }
             catch(e : OAuth2Exception.InvalidGrant){
                 try {

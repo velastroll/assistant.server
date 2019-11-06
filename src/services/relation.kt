@@ -38,6 +38,8 @@ fun Route.relation(){
                 // respond it
                 call.respond(HttpStatusCode.OK, "Added relation.")
             }
+            catch (e: BaseApplicationResponse.ResponseAlreadySentException){
+            }
             catch(e : OAuth2Exception.InvalidGrant){
                 try {
                     log.warn("Unauthorized: $e")
@@ -66,6 +68,8 @@ fun Route.relation(){
 
                 // respond
                 call.respond(HttpStatusCode.OK, "Finished relation.")
+            }
+            catch (e: BaseApplicationResponse.ResponseAlreadySentException){
             }
             catch(e : OAuth2Exception.InvalidGrant){
                 try {

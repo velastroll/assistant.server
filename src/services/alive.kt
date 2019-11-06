@@ -37,17 +37,19 @@ fun Route.alive(){
                 // return credentials
                 call.respond(HttpStatusCode.OK, auth)
             }
+            catch (e: BaseApplicationResponse.ResponseAlreadySentException){
+            }
             catch(e : OAuth2Exception.InvalidGrant){
                 try {
-                    log.warn("Unauthorized: $e")
-                    call.respond(HttpStatusCode.Unauthorized)
+                    log.warn("[login] Unauthorized: $e")
+                    call.respond(HttpStatusCode.Unauthorized, "Unauthorized: $e")
                 } catch (e: BaseApplicationResponse.ResponseAlreadySentException){
                 }
             }
             catch(e : Exception){
                 try {
-                    log.warn("Internal error: $e")
-                    call.respond(HttpStatusCode.InternalServerError)
+                    log.warn("[login] Internal error: $e")
+                    call.respond(HttpStatusCode.InternalServerError, "Internal error: $e")
                 } catch (e: BaseApplicationResponse.ResponseAlreadySentException){
                 }
             }
@@ -55,18 +57,40 @@ fun Route.alive(){
 
 
         get("alive"){
-            // TODO: extract device from Auth
-            // check authrorization
-            var accesstoken = call.request.headers["Authorization"] ?: throw OAuth2Exception.InvalidGrant("Unauthorized.")
-            accesstoken = accesstoken.cleanTokenTag()
-            val device = checkAccessToken(UserType.DEVICE, accesstoken) ?: throw OAuth2Exception.InvalidGrant("Unauthorized.")
-            // TODO: save state on DB
-            DeviceCtrl().alive(device)
+            try {
+                log.warn("[alive]")
+                // check authorization
+                var accesstoken =
+                    call.request.headers["Authorization"] ?: throw OAuth2Exception.InvalidGrant("Unauthorized.")
+                accesstoken = accesstoken.cleanTokenTag()
+                val device = checkAccessToken(UserType.DEVICE, accesstoken)
+                    ?: throw OAuth2Exception.InvalidGrant("Unauthorized.")
 
-            // TODO: check pending actions
+                log.info("[alive] Retrieved device: $device")
+                // save state on DB
+                DeviceCtrl().alive(device)
 
-            // TODO: reply
-            call.respond(HttpStatusCode.OK, Response(status = 200, action = RaspiAction.ALIVE))
+                log.info("[alive] Respond OK")
+                // TODO: check pending actions
+
+                // reply
+                call.respond(HttpStatusCode.OK, Response(status = 200, action = RaspiAction.ALIVE))
+            }
+            catch (e: BaseApplicationResponse.ResponseAlreadySentException){}
+            catch(e : OAuth2Exception.InvalidGrant){
+                try {
+                    log.warn("[alive] Unauthorized: $e")
+                    call.respond(HttpStatusCode.Unauthorized, "Unauthorized: $e")
+                } catch (e: BaseApplicationResponse.ResponseAlreadySentException){
+                }
+            }
+            catch(e : Exception){
+                try {
+                    log.warn("[alive] Internal error: $e")
+                    call.respond(HttpStatusCode.InternalServerError, "Internal error: $e")
+                } catch (e: BaseApplicationResponse.ResponseAlreadySentException){
+                }
+            }
         }
     }
 }

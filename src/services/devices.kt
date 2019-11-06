@@ -35,6 +35,8 @@ fun Route.devices(){
                 // respond it
                 call.respond(HttpStatusCode.OK, devices)
             }
+            catch (e: BaseApplicationResponse.ResponseAlreadySentException){
+            }
             catch(e : OAuth2Exception.InvalidGrant){
                 try {
                     log.warn("Unauthorized: $e")

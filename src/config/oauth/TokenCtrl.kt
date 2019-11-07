@@ -4,6 +4,7 @@ package com.percomp.assistant.core.config
 import com.percomp.assistant.core.controller.services.DeviceCtrl
 import com.percomp.assistant.core.controller.services.UserCtrl
 import com.percomp.assistant.core.model.UserType
+import com.percomp.assistant.core.services.log
 import com.percomp.assistant.core.tokenStore
 import io.ktor.auth.OAuth2Exception
 import io.ktor.util.KtorExperimentalAPI
@@ -20,6 +21,7 @@ fun String.cleanTokenTag() : String{
     if(this.contains("Bearer")) a = this.substring(7)
     if(this.contains("MAC")) a = this.substring(4)
     if(this.contains("Basic")) a = this.substring(6)
+    println("----- $a -----")
     return a
 }
 
@@ -30,12 +32,23 @@ fun String.cleanTokenTag() : String{
  */
 @Throws(OAuth2Exception.InvalidGrant::class)
 @KtorExperimentalAPI
-suspend fun checkAccessToken(access_token: String) : UserType?{
-    val accessToken = tokenStore.accessToken(access_token) ?: throw OAuth2Exception.InvalidGrant("Invalid credentials")
+suspend fun checkAccessToken(device : UserType, access_token: String) : String? {
+    val accessToken = tokenStore.accessToken(access_token)
+    log.info("${access_token} => AT: $accessToken")
+    var toReturn = DeviceCtrl().exist(mac = accessToken!!.identity!!.username)
+    log.info("toReturn: $toReturn")
+    if (toReturn != null && device == UserType.DEVICE) {
 
-    var toReturn = DeviceCtrl().exist(mac = accessToken.identity!!.username)
-    if (toReturn == null) toReturn = UserCtrl().exist(accessToken.identity!!.username)
-    return toReturn
+        log.info("return: ${toReturn.mac}")
+        return toReturn.mac
+    }
+    else {
+        log.info("check if user")
+        var user = UserCtrl().exist(accessToken.identity!!.username)
+        log.info("user: $user")
+        if (user == null) return null
+        else return user.username
+    }
 }
 
 /**
@@ -48,7 +61,7 @@ suspend fun checkAccessToken(access_token: String) : UserType?{
 fun refreshTokens(refresh_token: String) : Token {
 
     // check if the refresh token is valid
-    val rt = tokenStore!!.refreshToken(refresh_token.cleanTokenTag()) ?: throw OAuth2Exception.InvalidGrant("Bad request or invalid credentials")
+    val rt = tokenStore.refreshToken(refresh_token.cleanTokenTag()) ?: throw OAuth2Exception.InvalidGrant("Bad request or invalid credentials")
 
     // create a new tokens
     val rt2 = RefreshToken(

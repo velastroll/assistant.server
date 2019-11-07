@@ -4,12 +4,14 @@ import com.percomp.assistant.core.config.checkAccessToken
 import com.percomp.assistant.core.config.cleanTokenTag
 import com.percomp.assistant.core.controller.services.UserCtrl
 import com.percomp.assistant.core.model.Person
+import com.percomp.assistant.core.model.UserType
 import io.ktor.application.call
 import io.ktor.auth.OAuth2Exception
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.Route
+import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
 import io.ktor.server.engine.BaseApplicationResponse
@@ -32,6 +34,8 @@ fun Route.user() {
                 // return credentials
                 call.respond(HttpStatusCode.OK, auth)
             }
+            catch (e: BaseApplicationResponse.ResponseAlreadySentException){
+            }
             catch(e : OAuth2Exception.InvalidGrant){
                 try {
                     log.warn("Unauthorized: $e")
@@ -52,12 +56,44 @@ fun Route.user() {
             try {
                 // check authorization
                 val accesstoken = call.request.headers["Authorization"]!!.cleanTokenTag()
-                val worker = checkAccessToken(accesstoken)
+                val worker = checkAccessToken(UserType.USER, accesstoken)
                 val person = call.receive<Person>()
 
                 UserCtrl().addPerson(person)
 
                 call.respond(HttpStatusCode.OK)
+            }
+            catch (e: BaseApplicationResponse.ResponseAlreadySentException){
+            }
+            catch(e : OAuth2Exception.InvalidGrant){
+                try {
+                    log.warn("Unauthorized: $e")
+                    call.respond(HttpStatusCode.Unauthorized)
+                } catch (e: BaseApplicationResponse.ResponseAlreadySentException){
+                }
+            }
+            catch(e : Exception){
+                try {
+                    log.warn("Internal error: $e")
+                    call.respond(HttpStatusCode.InternalServerError)
+                } catch (e: BaseApplicationResponse.ResponseAlreadySentException){
+                }
+            }
+        }
+
+        get("people") {
+            try {
+                // check authorization
+                val accesstoken = call.request.headers["Authorization"]!!.cleanTokenTag()
+                val worker = checkAccessToken(UserType.USER, accesstoken)
+
+                // retrieve people
+                val people = UserCtrl().retrievePeople()
+
+                // return it
+                call.respond(HttpStatusCode.OK, people)
+            }
+            catch (e: BaseApplicationResponse.ResponseAlreadySentException){
             }
             catch(e : OAuth2Exception.InvalidGrant){
                 try {

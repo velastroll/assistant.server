@@ -188,14 +188,27 @@ fun Application.OAuthLoginApplicationWithDeps(oauthHttpClient: HttpClient) {
             // Check necessary grant for this uri
             val uri = call.request.uri
             val accessToken = call.request.headers["Authorization"]
+            log.info(" - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
+            log.info(" - uri: $uri - at : $accessToken")
+            log.info("Check Uri: " + checkUri(uri, accessToken))
             if (!checkUri(uri, accessToken)) throw OAuth2Exception.InvalidGrant("Invalid credentials")
         }
         catch (e: OAuth2Exception.InvalidGrant) {
-            call.respond(HttpStatusCode.Unauthorized)
+            try{
+                log.error("[Intercepted] Unauthorized.")
+                call.respond(HttpStatusCode.Unauthorized, "[Intercepted] Not valid.")
+            }
+            catch (e: BaseApplicationResponse.ResponseAlreadySentException){
+            }
         }
         catch (e: BaseApplicationResponse.ResponseAlreadySentException){}
         catch (e: Exception) {
-            call.respond(HttpStatusCode.InternalServerError)
+            try{
+                log.error("[Intercepted] Internal Server Error: $e")
+                call.respond(HttpStatusCode.InternalServerError, "[Intercepted] Internal Server Error: $e")
+            }
+            catch (e: BaseApplicationResponse.ResponseAlreadySentException){
+            }
         }
     }
 

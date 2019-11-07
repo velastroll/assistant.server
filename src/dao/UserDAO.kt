@@ -48,7 +48,7 @@ class UserDAO {
      * @param username
      * @return true or false
      **/
-    suspend fun checkExists(username: String): Boolean = dbQuery {
+    suspend fun checkExists(username: String): User? = dbQuery {
 
         var usr: User? = null
         val usrLC = username.toLowerCase()
@@ -57,8 +57,8 @@ class UserDAO {
             usr = User(
                 username = username
             )
-        }
-        usr != null
+        }.singleOrNull()
+        return@dbQuery usr
     }
 
     /**

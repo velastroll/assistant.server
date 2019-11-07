@@ -24,10 +24,10 @@ class UserCtrl {
         if (auth.password.isNullOrEmpty()) throw OAuth2Exception.InvalidGrant("not valid password.")
 
         // check it on db
-        UserDAO().check(auth.user, auth.password)
+        val user = UserDAO().check(auth.user, auth.password) ?: throw OAuth2Exception.InvalidGrant("Wrong credentials.")
 
         // store tokens
-        val tokens = newTokens(username = auth.user)
+        val tokens = newTokens(username = user.username)
 
         // return it
         return tokens

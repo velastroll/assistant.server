@@ -18,7 +18,7 @@ data class State(
 
 data class Relation (
     var device : String? = null,
-    var user: Person,
+    var user: Person?=null,
     var from: String,
     var to: String? = null
 )

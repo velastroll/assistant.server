@@ -6,11 +6,7 @@ import com.percomp.assistant.core.config.oauth.InMemoryIdentityCustom
 import com.percomp.assistant.core.config.oauth.InMemoryTokenStoreCustom
 import com.percomp.assistant.core.controller.retriever.*
 import com.percomp.assistant.core.dao.DatabaseFactory
-import com.percomp.assistant.core.dao.UserDAO
-import com.percomp.assistant.core.services.devices
-import com.percomp.assistant.core.services.relation
-import com.percomp.assistant.core.services.retrieve
-import com.percomp.assistant.core.services.user
+import com.percomp.assistant.core.services.*
 import com.percomp.assistant.core.util.Credentials
 import io.ktor.application.*
 import io.ktor.auth.*
@@ -18,7 +14,6 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.apache.Apache
 import io.ktor.features.CORS
 import io.ktor.features.ContentNegotiation
-import io.ktor.features.origin
 import io.ktor.gson.gson
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
@@ -26,7 +21,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.locations.*
 import io.ktor.request.uri
 import io.ktor.response.respond
-import io.ktor.routing.get
+import io.ktor.routing.Route
 import io.ktor.routing.param
 import io.ktor.routing.routing
 import io.ktor.server.engine.BaseApplicationResponse
@@ -154,6 +149,7 @@ fun Application.coreModule() {
         user()
         devices()
         relation()
+        location()
     }
 }
 

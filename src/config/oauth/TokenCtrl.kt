@@ -33,7 +33,7 @@ fun String.cleanTokenTag() : String{
 @Throws(OAuth2Exception.InvalidGrant::class)
 @KtorExperimentalAPI
 suspend fun checkAccessToken(device : UserType, access_token: String) : String? {
-    val accessToken = tokenStore.accessToken(access_token)
+    val accessToken = tokenStore.accessToken(access_token) ?: throw OAuth2Exception.InvalidGrant("Unarchived token.")
     log.info("${access_token} => AT: $accessToken")
     var toReturn = DeviceCtrl().exist(mac = accessToken!!.identity!!.username)
     log.info("toReturn: $toReturn")

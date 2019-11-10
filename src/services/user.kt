@@ -54,27 +54,32 @@ fun Route.user() {
 
         post ("person"){
             try {
+                log.info("[worker/person] Retrieving token.")
                 // check authorization
                 val accesstoken = call.request.headers["Authorization"]!!.cleanTokenTag()
                 val worker = checkAccessToken(UserType.USER, accesstoken)
+
+                log.info("[worker/person] Worker $worker try to add a new person.")
                 val person = call.receive<Person>()
 
+                log.info("[worker/person] Add person: $person")
                 UserCtrl().addPerson(person)
 
+                log.info("[worker/person] Send response.")
                 call.respond(HttpStatusCode.OK)
             }
             catch (e: BaseApplicationResponse.ResponseAlreadySentException){
             }
             catch(e : OAuth2Exception.InvalidGrant){
                 try {
-                    log.warn("Unauthorized: $e")
+                    log.warn("Unauthorized: ${e.message}")
                     call.respond(HttpStatusCode.Unauthorized)
                 } catch (e: BaseApplicationResponse.ResponseAlreadySentException){
                 }
             }
             catch(e : Exception){
                 try {
-                    log.warn("Internal error: $e")
+                    log.warn("Internal error: ${e.message}")
                     call.respond(HttpStatusCode.InternalServerError)
                 } catch (e: BaseApplicationResponse.ResponseAlreadySentException){
                 }

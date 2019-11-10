@@ -1,5 +1,7 @@
 package com.percomp.assistant.core.dao
 
+import com.percomp.assistant.core.config.backup.scripts.addadmin
+import com.percomp.assistant.core.config.backup.scripts.addprovinces
 import com.percomp.assistant.core.domain.*
 import com.percomp.assistant.core.model.User
 import com.percomp.assistant.core.util.Credentials
@@ -9,8 +11,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils.create
-import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 
 object DatabaseFactory {
@@ -26,20 +28,19 @@ object DatabaseFactory {
             create(Relation)
             create(Registry)
             create(Status)
+            create(Provinces)
+            create(Locations)
 
             // insert admin account
             val check = (Users).select{
                 Users.username eq Credentials.ADMIN_USERNAME.value
-            }.map{
-                User(it[Users.username])
-            }.singleOrNull()
-            if(check == null){
-                Users.insert {
-                    it[Users.username] = Credentials.ADMIN_USERNAME.value
-                    it[Users.password] = Credentials.ADMIN_PASSWORD.value
-                    it[Users.salt] = Credentials.ADMIN_SALT.value
-                }
-            }
+            }.map{ User(it[Users.username])}.singleOrNull()
+
+            if(check == null) addadmin()
+
+            // insert provinces if not exist
+            val provinces = Provinces.selectAll().map { it[Provinces.code] }.firstOrNull()
+            if (provinces == null) addprovinces()
         }
     }
 

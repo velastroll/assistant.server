@@ -1,7 +1,9 @@
 package com.percomp.assistant.core.dao
 
 import com.percomp.assistant.core.dao.DatabaseFactory.dbQuery
+import com.percomp.assistant.core.domain.People
 import com.percomp.assistant.core.domain.Users
+import com.percomp.assistant.core.model.Person
 import com.percomp.assistant.core.model.User
 import com.percomp.assistant.core.util.Constants
 import org.jetbrains.exposed.sql.insert
@@ -74,7 +76,7 @@ class UserDAO {
             .map(Constants.CHARPOOL::get)
             .joinToString("")
         val newPassword = password + salt
-Users.insert {
+        Users.insert {
             it[Users.username] = usrLC
             it[Users.password] = newPassword.sha512()
             it[Users.salt] = salt
@@ -91,4 +93,20 @@ Users.insert {
         val bytes = digest.digest(this.toByteArray(Charsets.UTF_8))
         return bytes.fold("") { str, it -> str + "%02x".format(it) }
     }
+
+    /**
+     * Return the list of people who live in a specific postal code.
+     */
+    suspend fun retrieve(postalcode: Int): ArrayList<Person> = dbQuery {
+        // retrieve people
+        return@dbQuery People.select({People.location eq postalcode}).map{
+            Person(
+                name = it[People.name],
+                surname = it[People.surname],
+                nif = it[People.nie],
+                postcode = it[People.location]
+            )
+        } as ArrayList
+    }
+
 }

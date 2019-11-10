@@ -12,4 +12,6 @@ object Users : Table() {
 object People : Table() {
     val nie = varchar("nie", 15).primaryKey()
     val name = varchar("name", Constants.USERNAME)
+    val surname = varchar("surname", Constants.SURNAME)
+    val location = reference("location", Locations.postcode)
 }

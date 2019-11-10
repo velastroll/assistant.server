@@ -1,7 +1,6 @@
 package com.percomp.assistant.core.dao
 
 import com.percomp.assistant.core.dao.DatabaseFactory.dbQuery
-import com.percomp.assistant.core.domain.Devices
 import com.percomp.assistant.core.domain.People
 import com.percomp.assistant.core.domain.Relation
 import com.percomp.assistant.core.model.Person
@@ -53,7 +52,9 @@ class RelationDAO {
                     .map {
                         Person(
                             name = it[People.name],
-                            nif = it[People.nie]) }
+                            surname = it[People.surname],
+                            nif = it[People.nie],
+                            postcode = it[People.location]) }
                     .first()
 
                 // return relation
@@ -76,6 +77,17 @@ class RelationDAO {
             }){
                 it[Relation.to] = Instant.now().toString()
         }
+    }
+
+
+    suspend fun getCurrentByUser(user: String) : com.percomp.assistant.core.model.Relation? = dbQuery {
+        Relation.select({Relation.person eq user})
+            .map {
+                com.percomp.assistant.core.model.Relation(
+                    device = it[Relation.device],
+                    from = it[Relation.from]
+                    )
+            }.singleOrNull()
     }
 
 }

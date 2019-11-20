@@ -83,7 +83,4 @@ class DeviceCtrl {
 
     }
 
-    suspend fun alive(device: String) {
-        StatusDAO().post(device, RaspiAction.ALIVE)
-    }
 }

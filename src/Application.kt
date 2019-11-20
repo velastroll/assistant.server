@@ -150,6 +150,7 @@ fun Application.coreModule() {
         devices()
         relation()
         location()
+        auth()
     }
 }
 

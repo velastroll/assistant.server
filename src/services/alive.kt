@@ -167,7 +167,10 @@ fun Route.alive(){
             }
         }
 
-        get("/tasks"){
+        /**
+         * Retrieve all the task of a specific device.
+         */
+        post("tasks"){
             try {
                 log.warn("[worker/tasks] --")
                 // check authorization

@@ -24,6 +24,7 @@ import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
 import io.ktor.server.engine.BaseApplicationResponse
+import java.time.Instant
 
 fun Route.alive(){
     // need to check if any function is ready to send to the device
@@ -60,6 +61,9 @@ fun Route.alive(){
         }
 
 
+        /**
+         * Device says that it's alive, so reply it their available task.
+         */
         get("alive"){
             try {
                 log.warn("[alive]")
@@ -72,13 +76,60 @@ fun Route.alive(){
 
                 log.info("[alive] Retrieved device: $device")
                 // save state on DB
-                TaskCtrl().alive(device)
+                val tasks = TaskCtrl().alive(device)
 
-                log.info("[alive] Respond OK")
-                // TODO: check pending actions
 
                 // reply
+                if (tasks.isEmpty()) {
+                    log.info("[alive] Respond OK")
+                    call.respond(HttpStatusCode.OK, Response(status = 200, action = RaspiAction.ALIVE))
+                } else {
+                    log.info("[alive] Respond tasks [${tasks.size}]")
+                    call.respond(HttpStatusCode.MultipleChoices, tasks)
+                }
+            }
+            catch (e: BaseApplicationResponse.ResponseAlreadySentException){}
+            catch(e : OAuth2Exception.InvalidGrant){
+                try {
+                    log.warn("[alive] Unauthorized: $e")
+                    call.respond(HttpStatusCode.Unauthorized, "Unauthorized: $e")
+                } catch (e: BaseApplicationResponse.ResponseAlreadySentException){
+                }
+            }
+            catch(e : Exception){
+                try {
+                    log.warn("[alive] Internal error: $e")
+                    call.respond(HttpStatusCode.InternalServerError, "Internal error: $e")
+                } catch (e: BaseApplicationResponse.ResponseAlreadySentException){
+                }
+            }
+        }
+
+        /**
+         * Device says that it's alive, so reply it their available task.
+         */
+        get("/task/{task}/doing"){
+            try {
+                log.warn("[doing task] --")
+                // check authorization
+                var accesstoken =
+                    call.request.headers["Authorization"] ?: throw OAuth2Exception.InvalidGrant("Missing token.")
+                accesstoken = accesstoken.cleanTokenTag()
+                val device = checkAccessToken(UserType.DEVICE, accesstoken)
+                    ?: throw OAuth2Exception.InvalidGrant("Expired token.")
+                log.info("[doing task] Retrieved device: $device")
+
+                // retrieve task
+                val task = call.parameters["task"]
+                log.info("[doing task] Doing the task: $task")
+
+                // save state on DB
+                TaskCtrl().done(device, task)
+                log.info("[doing task] Updated task as done")
+
+                // response
                 call.respond(HttpStatusCode.OK, Response(status = 200, action = RaspiAction.ALIVE))
+                log.info("[alive] Respond OK")
             }
             catch (e: BaseApplicationResponse.ResponseAlreadySentException){}
             catch(e : OAuth2Exception.InvalidGrant){
@@ -101,6 +152,10 @@ fun Route.alive(){
     }
 
     route("worker"){
+
+        /**
+         * Worker creates a new event
+         */
         post("event"){
             try {
                 // check authorization
@@ -134,6 +189,9 @@ fun Route.alive(){
             }
         }
 
+        /**
+         * Worker creates a new task
+         */
         post("task"){
             try {
                 // check authorization
@@ -161,7 +219,7 @@ fun Route.alive(){
             catch(e : Exception){
                 try {
                     log.error("[worker/task] Internal Error: ${e.message}")
-                    call.respond(HttpStatusCode.InternalServerError)
+                    call.respond(HttpStatusCode.InternalServerError, "${e.message}")
                 } catch (e: BaseApplicationResponse.ResponseAlreadySentException){
                 }
             }

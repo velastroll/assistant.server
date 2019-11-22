@@ -27,17 +27,12 @@ class EventDAO {
      **/
     suspend fun post(name: String, content: String): Boolean = dbQuery {
 
-        val event : Event? = runBlocking { return@runBlocking get(name = name)}
-        if (event == null) {
-            return@dbQuery false
+        Events.insert {
+            it[Events.name] = name
+            it[Events.content] = content
         }
-        else {
-            Events.insert {
-                it[Events.name] = name
-                it[Events.content] = content
-            }
-            return@dbQuery true
-        }
+        return@dbQuery true
+
     }
 
     /**

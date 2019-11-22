@@ -6,7 +6,7 @@ data class Task(
     var by : String? = null, // worker who send it
     var at : String? = null, // timestamp of the worker request
     var event : String? = null, // task identifier
-    var timestamp: String? = null // when it was confirmed
+    var timestamp: String? = "9999" // when it was confirmed
 )
 
 data class Event(

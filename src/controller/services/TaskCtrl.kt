@@ -4,6 +4,7 @@ import com.percomp.assistant.core.dao.*
 import com.percomp.assistant.core.model.Task
 import com.percomp.assistant.core.util.Constants
 import com.percomp.assistant.core.util.communication.RaspiAction
+import org.joda.time.Instant
 
 class TaskCtrl {
 
@@ -22,16 +23,23 @@ class TaskCtrl {
 
         // check values
         if (task.device.isNullOrEmpty()) throw IllegalArgumentException("Device cannot be empty.")
-        if (DeviceCtrl().exist(task.device!!) != null) throw IllegalArgumentException("Device does not exist.")
-        if (by.isNullOrEmpty()) throw IllegalArgumentException("Task must be created by someone")
-        if (task.at.isNullOrEmpty()) throw IllegalArgumentException("Task must have the date of it creation.")
+        task.device = task.device!!
+        if (DeviceCtrl().exist(task.device!!) == null) throw IllegalArgumentException("Device does not exist.")
         if (task.event.isNullOrEmpty()) throw IllegalArgumentException("Task must be a type of event.")
+        EventDAO().get(task.event!!) ?: throw IllegalArgumentException("Event '${task.event}' does not exist.")
+        task.at = Instant.now().toString()
         task.by = by
         TaskDAO().post(task = task)
     }
 
-    suspend fun alive(device: String) {
+    suspend fun alive(device: String) : List<Task>{
+        // save status
         StatusDAO().post(device, RaspiAction.ALIVE)
+
+        // check if it has pending actions
+        return TaskDAO().get(device, from = Instant.now().toString())
+
+
     }
 
     suspend fun getAll(device: String?, from : String?, to : String) : List<Task> {
@@ -39,5 +47,12 @@ class TaskCtrl {
         if (device.isNullOrEmpty()) throw IllegalArgumentException("Device cannot be empty")
         if (from.isNullOrEmpty()) throw IllegalArgumentException("")
         return TaskDAO().get(device, from, to)
+    }
+
+    suspend fun done(device: String, task: String?) {
+
+        if (task.isNullOrEmpty()) throw IllegalArgumentException("Task cannot be null.")
+        val date = Instant.now().toString()
+        TaskDAO().put(device, task, date)
     }
 }

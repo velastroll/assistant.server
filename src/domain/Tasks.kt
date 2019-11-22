@@ -9,7 +9,7 @@ object Tasks : Table(){
     val by = varchar("by", Constants.IDENTIFIER).nullable()
     val at = varchar("at", Constants.TIMESTAMP).nullable()
     val event = reference("event", Events.name)
-    val timestamp = varchar("at", Constants.TIMESTAMP).nullable()
+    val timestamp = varchar("timestamp", Constants.TIMESTAMP).nullable()
 }
 
 object Events : Table() {

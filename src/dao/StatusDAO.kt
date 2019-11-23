@@ -15,7 +15,7 @@ class StatusDAO{
     suspend fun get( mac : String ) = dbQuery {
         // TODO: improve this
         val s = Status.select ({ Status.device eq mac }).orderBy( Status.timestamp, isAsc = false ).map {
-            State(device = it[Status.device], state = it[Status.status], timestamp = it[Status.timestamp])
+            State(device = it[Status.device], state = it[Status.status], timestamp = it[Status.timestamp], content = it[Status.content])
         }.firstOrNull()
 
 
@@ -24,7 +24,7 @@ class StatusDAO{
         return@dbQuery s
     }
 
-    suspend fun post( mac : String, status : RaspiAction ) = dbQuery {
+    suspend fun post( mac : String, status : RaspiAction, content : String? = null ) = dbQuery {
         // generate id
         val id = (1..Constants.SALT)
             .map { kotlin.random.Random.nextInt(0, Constants.HEX.size) }
@@ -36,6 +36,7 @@ class StatusDAO{
             it[Status.device] = mac
             it[Status.timestamp] = Instant.now().toString()
             it[Status.status] = status
+            it[Status.content] = content
         }
     }
 

@@ -185,9 +185,6 @@ fun Application.OAuthLoginApplicationWithDeps(oauthHttpClient: HttpClient) {
             // Check necessary grant for this uri
             val uri = call.request.uri
             val accessToken = call.request.headers["Authorization"]
-            log.info(" - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
-            log.info(" - uri: $uri - at : $accessToken")
-            log.info("Check Uri: " + checkUri(uri, accessToken))
             if (!checkUri(uri, accessToken)) throw OAuth2Exception.InvalidGrant("Invalid credentials")
         }
         catch (e: OAuth2Exception.InvalidGrant) {

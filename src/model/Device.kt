@@ -13,7 +13,8 @@ data class Device(
 data class State(
     val device: String,
     val state: RaspiAction,
-    val timestamp: String
+    val timestamp: String,
+    var content : String? = null
 )
 
 data class Relation (

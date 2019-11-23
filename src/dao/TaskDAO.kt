@@ -71,11 +71,15 @@ class TaskDAO {
                 device = it[Tasks.id],
                 event = it[Tasks.event]
             )
-        }.singleOrNull()
+        } as ArrayList
 
-        if (t == null) throw IllegalArgumentException("No task of type $task was available for $device.")
 
-        Tasks.update({Tasks.id eq t.id!!}) {
+        if (t.isEmpty()) throw IllegalArgumentException("No task of type $task is available for $device.")
+
+        println("Available tasks: $t")
+
+        // update
+        Tasks.update({Tasks.id eq t[0].id!!}) {
             it[Tasks.timestamp] = date
         }
     }

@@ -134,14 +134,14 @@ fun Route.alive(){
             catch (e: BaseApplicationResponse.ResponseAlreadySentException){}
             catch(e : OAuth2Exception.InvalidGrant){
                 try {
-                    log.warn("[alive] Unauthorized: $e")
+                    log.warn("[doing task] Unauthorized: $e")
                     call.respond(HttpStatusCode.Unauthorized, "Unauthorized: $e")
                 } catch (e: BaseApplicationResponse.ResponseAlreadySentException){
                 }
             }
             catch(e : Exception){
                 try {
-                    log.warn("[alive] Internal error: $e")
+                    log.warn("[Doing task] Internal error: $e")
                     call.respond(HttpStatusCode.InternalServerError, "Internal error: $e")
                 } catch (e: BaseApplicationResponse.ResponseAlreadySentException){
                 }

@@ -31,7 +31,7 @@ fun Route.devices(){
                 // check authrorization
                 val accesstoken = call.request.headers["Authorization"]!!.cleanTokenTag()
                 val worker = checkAccessToken(UserType.USER, accesstoken)
-                log.error("Access for $worker")
+                log.debug("[w/devices] Access for $worker")
                 // retrieve devices
                 val devices = DeviceCtrl().getAll()
                 // respond it
@@ -48,7 +48,7 @@ fun Route.devices(){
             }
             catch(e : Exception){
                 try {
-                    log.warn("Internal error: $e")
+                    log.warn("[w/devices] Internal error: $e")
                     call.respond(HttpStatusCode.InternalServerError)
                 } catch (e: BaseApplicationResponse.ResponseAlreadySentException){
                 }

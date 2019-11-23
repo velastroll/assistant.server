@@ -31,7 +31,7 @@ fun Route.alive(){
     route("device"){
         post("login"){
             try {
-                log.warn("/device/login")
+                log.warn("[/device/login] ------------------------- ")
                 // retrieve data
                 val postParameters: Parameters = call.receiveParameters()
                 log.warn("/device/login : request = $postParameters")
@@ -66,7 +66,7 @@ fun Route.alive(){
          */
         get("alive"){
             try {
-                log.warn("[alive]")
+                log.warn("[alive] -------------------------- ")
                 // check authorization
                 var accesstoken =
                     call.request.headers["Authorization"] ?: throw OAuth2Exception.InvalidGrant("Missing token.")
@@ -109,7 +109,7 @@ fun Route.alive(){
          */
         get("/task/{task}/doing"){
             try {
-                log.warn("[doing task] --")
+                log.warn("[doing task] ----------------------- ")
                 // check authorization
                 var accesstoken =
                     call.request.headers["Authorization"] ?: throw OAuth2Exception.InvalidGrant("Missing token.")
@@ -159,23 +159,23 @@ fun Route.alive(){
         post("event"){
             try {
                 // check authorization
-                log.info("[worker/event] --")
+                log.debug("[worker/event] --")
                 var accesstoken = call.request.headers["Authorization"] ?: throw OAuth2Exception.InvalidGrant("Missing token")
                     accesstoken = accesstoken.cleanTokenTag()
                 val worker_username = checkAccessToken(UserType.USER, accesstoken)
                 val request = call.receive<Event>()
-                log.info("[worker/event] Access for $worker_username")
+                log.debug("[worker/event] Access for $worker_username")
                 // add relation
                 TaskCtrl().addEvent(name= request.name, content = request.content)
                 // respond it
-                log.info("[worker/event] Ok")
+                log.debug("[worker/event] Ok")
                 call.respond(HttpStatusCode.OK, "Added.")
             }
             catch (e: BaseApplicationResponse.ResponseAlreadySentException){
             }
             catch(e : OAuth2Exception.InvalidGrant){
                 try {
-                    log.warn("[worker/event] Unauthorized: ${e.message}")
+                    log.error("[worker/event] Unauthorized: ${e.message}")
                     call.respond(HttpStatusCode.Unauthorized)
                 } catch (e: BaseApplicationResponse.ResponseAlreadySentException){
                 }

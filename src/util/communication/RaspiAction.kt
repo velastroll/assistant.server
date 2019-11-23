@@ -12,11 +12,8 @@ package com.percomp.assistant.core.util.communication
  * @author Álvaro Velasco Gil
  */
 public enum class RaspiAction{
-
     ALIVE,
     CONFIG,
-    LOGIN
-
-,
-
+    LOGIN,
+    DOING_TASK
 }

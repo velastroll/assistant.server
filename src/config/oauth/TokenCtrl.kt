@@ -21,7 +21,6 @@ fun String.cleanTokenTag() : String{
     if(this.contains("Bearer")) a = this.substring(7)
     if(this.contains("MAC")) a = this.substring(4)
     if(this.contains("Basic")) a = this.substring(6)
-    println("----- $a -----")
     return a
 }
 

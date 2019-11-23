@@ -76,8 +76,7 @@ fun Route.alive(){
 
                 log.info("[alive] Retrieved device: $device")
                 // save state on DB
-                val tasks = TaskCtrl().alive(device)
-
+                val tasks = TaskCtrl().newStatus(device, RaspiAction.ALIVE)
 
                 // reply
                 if (tasks.isEmpty()) {
@@ -122,8 +121,9 @@ fun Route.alive(){
                 // retrieve task
                 val task = call.parameters["task"]
                 log.info("[doing task] Doing the task: $task")
+                TaskCtrl().newStatus(device, RaspiAction.DOING_TASK)
 
-                // save state on DB
+                // mark task as done
                 TaskCtrl().done(device, task)
                 log.info("[doing task] Updated task as done")
 

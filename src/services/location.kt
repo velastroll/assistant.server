@@ -14,6 +14,7 @@ import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
 import io.ktor.server.engine.BaseApplicationResponse
+import org.jetbrains.exposed.exceptions.ExposedSQLException
 import java.lang.Exception
 
 
@@ -53,9 +54,16 @@ fun Route.location(){
                 } catch (e: BaseApplicationResponse.ResponseAlreadySentException){
                 }
             }
+            catch(e : ExposedSQLException){
+                try {
+                    log.warn("[worker/towns] PSQL error: ${e.message}")
+                    call.respond(HttpStatusCode.Conflict, "This post code is already in use.")
+                } catch (e: BaseApplicationResponse.ResponseAlreadySentException){
+                }
+            }
             catch(e : Exception){
                 try {
-                    log.warn("Internal error: $e")
+                    log.warn("[worker/towns] Internal error: $e")
                     call.respond(HttpStatusCode.InternalServerError)
                 } catch (e: BaseApplicationResponse.ResponseAlreadySentException){
                 }

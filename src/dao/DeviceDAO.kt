@@ -59,7 +59,7 @@ class DeviceDAO {
             device = Device(
                 mac = mac
             )
-        }
+        }.singleOrNull()
         device
     }
 

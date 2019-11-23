@@ -9,6 +9,7 @@ object Constants {
     val USERNAME = 16
     val PASSWORD = 16
     const val SHA_PASSWORD: Int = 512
+    const val EVENT_CONTENT: Int = 1024
     val CHARPOOL: List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9') + '.' + '*' + '_' + '-'
     val NORMALCHARPOOL: List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
     val HEX : List<Char> = ('a'..'f') + ('A'..'F') + ('0'..'9')

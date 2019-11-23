@@ -15,7 +15,7 @@ class StatusDAO{
     suspend fun get( mac : String ) = dbQuery {
         // TODO: improve this
         val s = Status.select ({ Status.device eq mac }).orderBy( Status.timestamp, isAsc = false ).map {
-            State(device = it[Status.device], state = it[Status.status], timestamp = it[Status.timestamp])
+            State(device = it[Status.device], state = it[Status.status], timestamp = it[Status.timestamp], content = it[Status.content])
         }.firstOrNull()
 
 

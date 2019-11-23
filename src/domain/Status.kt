@@ -8,5 +8,6 @@ object Status : Table() {
     val id = varchar("id", Constants.IDENTIFIER)
     val device = reference("device", Devices.id)
     val timestamp = varchar("timestamp", Constants.TIMESTAMP)
+    val content = varchar("content", Constants.EVENT_CONTENT).nullable()
     val status = enumeration("status", RaspiAction::class)
 }

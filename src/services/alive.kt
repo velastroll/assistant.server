@@ -118,10 +118,10 @@ fun Route.alive(){
                     ?: throw OAuth2Exception.InvalidGrant("Expired token.")
                 log.info("[doing task] Retrieved device: $device")
 
-                // retrieve task
+                // retrieve task and update device status
                 val task = call.parameters["task"]
                 log.info("[doing task] Doing the task: $task")
-                TaskCtrl().newStatus(device, RaspiAction.DOING_TASK)
+                TaskCtrl().newStatus(device, RaspiAction.DOING_TASK, task)
 
                 // mark task as done
                 TaskCtrl().done(device, task)

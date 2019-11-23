@@ -32,9 +32,10 @@ class TaskCtrl {
         TaskDAO().post(task = task)
     }
 
-    suspend fun newStatus(device: String, status: RaspiAction) : List<Task>{
+    suspend fun newStatus(device: String, status: RaspiAction, content: String? = null) : List<Task>{
+
         // save status
-        StatusDAO().post(device, status)
+        StatusDAO().post(device, status, content)
 
         // check if it has pending actions
         return TaskDAO().get(device, from = Instant.now().toString())

@@ -13,3 +13,22 @@ data class Event(
     var name : String,
     var content : String? = null
 )
+
+/**
+ * Event for worker
+ */
+data class Event4W(
+    var name : String,
+    var timestamp : String? = null
+)
+
+data class Intent4W(
+    var timestamp: String? = null,
+    var intent: String? = null,
+    var slots: List<Slot4W>? = null
+)
+
+data class Slot4W(
+    var slot: String? = null,
+    var accuracy : Double? = null
+)

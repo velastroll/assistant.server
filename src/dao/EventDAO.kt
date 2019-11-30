@@ -3,15 +3,15 @@ package com.percomp.assistant.core.dao
 import com.percomp.assistant.core.dao.DatabaseFactory.dbQuery
 import com.percomp.assistant.core.domain.Devices
 import com.percomp.assistant.core.domain.Events
+import com.percomp.assistant.core.domain.Status
 import com.percomp.assistant.core.domain.Users
-import com.percomp.assistant.core.model.Device
-import com.percomp.assistant.core.model.Event
-import com.percomp.assistant.core.model.User
+import com.percomp.assistant.core.model.*
 import com.percomp.assistant.core.util.Constants
 import com.percomp.assistant.core.util.Constants.HEX
 import com.percomp.assistant.core.util.communication.RaspiAction
 import io.ktor.auth.OAuth2Exception
 import kotlinx.coroutines.runBlocking
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
@@ -45,6 +45,18 @@ class EventDAO {
             .select({Events.name eq name})
             .map { Event(name=it[Events.name], content=it[Events.content]) }
             .singleOrNull()
+    }
+
+    /**
+     * Retrieve all the types of event.
+     */
+    suspend fun getAll(): List<Event> = dbQuery{
+        return@dbQuery Events.selectAll().map {
+            Event(
+                name = it[Events.name],
+                content = it[Events.content]
+            )
+        } as ArrayList
     }
 
     private fun String.sha512(): String {

@@ -84,6 +84,24 @@ class TaskDAO {
         }
     }
 
+    /**
+     * Retrieve the pendind task of a specific device
+      */
+    suspend fun getPending(device: String) = dbQuery{
+        return@dbQuery Tasks.select({Tasks.device eq device and
+                    (Tasks.timestamp.isNull())
+                }).map {
+            Task(
+                id = it[Tasks.id],
+                device = it[Tasks.device],
+                event = it[Tasks.event],
+                by = it[Tasks.by],
+                timestamp = it[Tasks.timestamp],
+                at = it[Tasks.at]
+            )
+        } as ArrayList
+    }
+
     private val charPool : List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
     private fun generateId() = (1..Constants.IDENTIFIER)
         .map { i -> kotlin.random.Random.nextInt(0, charPool.size) }

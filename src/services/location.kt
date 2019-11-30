@@ -33,7 +33,7 @@ fun Route.location(){
                 val town = call.receive<TownRequest>()
 
                 log.info("[worker/town] Town to add = $town")
-                LocationCtrl().add(town.name, town.postcode)
+                LocationCtrl().add(town.name, town.postcode, town.latitude, town.longitude)
 
                 log.info("[worker/town] Added.")
                 call.respond(HttpStatusCode.OK, "Town ${town.name} successfully added.")
@@ -114,5 +114,7 @@ fun Route.location(){
 
 data class TownRequest (
     val name : String,
-    val postcode : Int
+    val postcode : Int,
+    val latitude : Double,
+    val longitude : Double
 )

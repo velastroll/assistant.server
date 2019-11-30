@@ -125,13 +125,3 @@ data class CredentialRequest(
     val user: String,
     val password: String
 )
-
-data class Tokens (
-    val access_token: String,
-    val refresh_token : String
-)
-
-data class Response (
-    val status: Int,
-    val description : String
-)

@@ -54,7 +54,7 @@ class RelationDAO {
                             name = it[People.name],
                             surname = it[People.surname],
                             nif = it[People.nie],
-                            postcode = it[People.location]) }
+                            position = it[People.location]) }
                     .first()
 
                 // return relation

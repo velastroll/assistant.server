@@ -14,10 +14,12 @@ class LocationDAO {
     /**
      * Insert a new town in the database
      */
-    suspend fun post (name: String, postCode : Int, province : Int) = dbQuery{
+    suspend fun post (name: String, postCode : Int, province : Int, lat : Double, lon: Double) = dbQuery{
         Locations.insert {
             it[Locations.name] = name
             it[Locations.postcode] = postCode
+            it[Locations.lat] = lat
+            it[Locations.lon] = lon
             it[Locations.province] = province
         }
     }
@@ -43,6 +45,8 @@ class LocationDAO {
             com.percomp.assistant.core.controller.services.Location(
                 name = it[Locations.name],
                 postcode = it[Locations.postcode],
+                latitude = it[Locations.lat],
+                longitude = it[Locations.lon],
                 people = ArrayList()
             )
         } as ArrayList<Location>

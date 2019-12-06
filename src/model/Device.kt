@@ -23,6 +23,8 @@ data class Device4W(
     var pending: List<Task>? = null
 )
 
+data class Position(var lat : Double, var lon : Double)
+
 data class State(
     val device: String,
     val state: RaspiAction,
@@ -40,5 +42,6 @@ data class Relation (
     var device : String? = null,
     var user: Person?=null,
     var from: String,
-    var to: String? = null
+    var to: String? = null,
+    var position: Position? = null
 )

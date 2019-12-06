@@ -1,10 +1,13 @@
 package com.percomp.assistant.core.dao
 
 import com.percomp.assistant.core.dao.DatabaseFactory.dbQuery
+import com.percomp.assistant.core.domain.Locations
 import com.percomp.assistant.core.domain.People
 import com.percomp.assistant.core.domain.Relation
 import com.percomp.assistant.core.model.Person
+import com.percomp.assistant.core.model.Position
 import com.percomp.assistant.core.util.Constants
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
@@ -28,7 +31,7 @@ class RelationDAO {
             .joinToString("")
         // insert
         Relation.insert {
-            it[Relation.person] = nifUC
+            it[Relation.user] = nifUC
             it[Relation.device] = device
             it[Relation.id] = id
             it[Relation.from] = Instant.now().toString()
@@ -41,20 +44,21 @@ class RelationDAO {
      * @param mac identifier of the device
      */
     suspend fun get(mac : String) = dbQuery {
+
         // retrieve a specific relation by mac device.
-        Relation.select({Relation.device eq mac})
+        val r = Relation.select({Relation.device eq mac})
             .orderBy(Relation.from, isAsc = false)
             .map {
 
                 // retrieve user
                 val user = People
-                    .select({People.nie eq it[Relation.person]})
+                    .select({People.nie eq it[Relation.user]})
                     .map {
                         Person(
                             name = it[People.name],
                             surname = it[People.surname],
                             nif = it[People.nie],
-                            position = it[People.location]) }
+                            postcode = it[People.location]) }
                     .first()
 
                 // return relation
@@ -64,6 +68,17 @@ class RelationDAO {
                     to = it[Relation.to]
                 )
             }.firstOrNull()
+
+        // retrieve position
+        if (r != null) {
+            r.position = Locations.select({ Locations.postcode eq r.user!!.postcode }).map {
+                Position(
+                    lat = it[Locations.lat],
+                    lon = it[Locations.lon]
+                )
+            }.firstOrNull()
+        }
+        return@dbQuery r
     }
 
     /**
@@ -81,7 +96,7 @@ class RelationDAO {
 
 
     suspend fun getCurrentByUser(user: String) : com.percomp.assistant.core.model.Relation? = dbQuery {
-        Relation.select({Relation.person eq user})
+        Relation.select({Relation.user eq user})
             .map {
                 com.percomp.assistant.core.model.Relation(
                     device = it[Relation.device],

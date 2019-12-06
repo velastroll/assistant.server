@@ -21,6 +21,9 @@ import java.lang.Exception
 fun Route.location(){
 
     route ("worker"){
+        /**
+         * Creates a new location
+         */
         post("towns"){
             try {
                 log.info("[worker/town] Retrieving token.")

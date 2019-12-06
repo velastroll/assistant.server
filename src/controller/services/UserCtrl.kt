@@ -2,17 +2,12 @@ package com.percomp.assistant.core.controller.services
 
 import com.percomp.assistant.core.config.Token
 import com.percomp.assistant.core.config.newTokens
-import com.percomp.assistant.core.config.oauth.InMemoryTokenStoreCustom
 import com.percomp.assistant.core.dao.PeopleDAO
 import com.percomp.assistant.core.dao.RelationDAO
 import com.percomp.assistant.core.dao.UserDAO
-import com.percomp.assistant.core.domain.People
 import com.percomp.assistant.core.model.Person
 import com.percomp.assistant.core.model.User
-import com.percomp.assistant.core.model.UserType
 import com.percomp.assistant.core.services.CredentialRequest
-import com.percomp.assistant.core.services.Tokens
-import com.percomp.assistant.core.tokenStore
 import io.ktor.auth.OAuth2Exception
 import java.lang.IllegalArgumentException
 

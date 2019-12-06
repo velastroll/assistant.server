@@ -56,6 +56,7 @@ class DeviceCtrl {
             d4.relation = RelationDAO().get(mac = d.mac)
             // retrieve pending actions
             d4.pending = TaskDAO().getPending(d.mac)
+            // retrieve position
 
             //add to list
             devices4w.add(d4)

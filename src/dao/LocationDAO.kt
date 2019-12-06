@@ -5,6 +5,7 @@ import com.percomp.assistant.core.controller.services.Province
 import com.percomp.assistant.core.dao.DatabaseFactory.dbQuery
 import com.percomp.assistant.core.domain.Locations
 import com.percomp.assistant.core.domain.Provinces
+import com.percomp.assistant.core.model.Position
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
@@ -51,4 +52,5 @@ class LocationDAO {
             )
         } as ArrayList<Location>
     }
+
 }

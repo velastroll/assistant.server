@@ -46,7 +46,7 @@ class RelationDAO {
     suspend fun get(mac : String) = dbQuery {
 
         // retrieve a specific relation by mac device.
-        val r = Relation.select({Relation.device eq mac})
+        val r = Relation.select({Relation.device eq mac and (Relation.to.isNull())})
             .orderBy(Relation.from, isAsc = false)
             .map {
 

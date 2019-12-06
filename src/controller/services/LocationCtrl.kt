@@ -6,14 +6,18 @@ import com.percomp.assistant.core.model.Person
 
 class LocationCtrl {
 
-    suspend fun add(name : String, postCode : Int){
+    suspend fun add(name : String, postCode : Int, lat: Double, lon: Double){
         if (name.length < 3) throw IllegalArgumentException("Name is too short.")
         if (postCode < 1000) throw IllegalArgumentException("Invalid post code.")
         if (postCode > 52007) throw IllegalArgumentException("Invalid post code.")
+        if (lat > 90) throw IllegalArgumentException("Invalid latitude: $lat.")
+        if (lat < -90) throw IllegalArgumentException("Invalid latitude: $lat.")
+        if (lon > 180) throw IllegalArgumentException("Invalid longitude: $lon.")
+        if (lon < -180) throw IllegalArgumentException("Invalid longitude: $lon.")
 
         val province = postCode / 1000
 
-        LocationDAO().post(name, postCode, province)
+        LocationDAO().post(name, postCode, province, lat, lon)
     }
 
     suspend fun retrieveAll(): List<Province> {
@@ -46,5 +50,7 @@ data class Province (
 data class Location(
     val name : String,
     val postcode : Int,
+    var latitude : Double,
+    var longitude : Double,
     var people : ArrayList<Person>
 )

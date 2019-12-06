@@ -2,17 +2,17 @@ package com.percomp.assistant.core.dao
 
 import com.percomp.assistant.core.dao.DatabaseFactory.dbQuery
 import com.percomp.assistant.core.domain.Devices
+import com.percomp.assistant.core.domain.Status
 import com.percomp.assistant.core.domain.Users
 import com.percomp.assistant.core.model.Device
+import com.percomp.assistant.core.model.State
 import com.percomp.assistant.core.model.User
 import com.percomp.assistant.core.util.Constants
 import com.percomp.assistant.core.util.Constants.HEX
 import com.percomp.assistant.core.util.communication.RaspiAction
 import io.ktor.auth.OAuth2Exception
 import kotlinx.coroutines.runBlocking
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.*
 import java.security.MessageDigest
 
 class DeviceDAO {

@@ -29,6 +29,8 @@ import java.time.Instant
 fun Route.alive(){
     // need to check if any function is ready to send to the device
     route("device"){
+
+
         post("login"){
             try {
                 log.warn("[/device/login] ------------------------- ")
@@ -170,6 +172,44 @@ fun Route.alive(){
                 // respond it
                 log.debug("[worker/event] Ok")
                 call.respond(HttpStatusCode.OK, "Added.")
+            }
+            catch (e: BaseApplicationResponse.ResponseAlreadySentException){
+            }
+            catch(e : OAuth2Exception.InvalidGrant){
+                try {
+                    log.error("[worker/event] Unauthorized: ${e.message}")
+                    call.respond(HttpStatusCode.Unauthorized)
+                } catch (e: BaseApplicationResponse.ResponseAlreadySentException){
+                }
+            }
+            catch(e : Exception){
+                try {
+                    log.error("[worker/event] Internal error: ${e.message}")
+                    call.respond(HttpStatusCode.InternalServerError)
+                } catch (e: BaseApplicationResponse.ResponseAlreadySentException){
+                }
+            }
+        }
+
+        /**
+         * Retrieve all the possible events.
+         */
+        get("event"){
+            try {
+                // check authorization
+                log.debug("[worker/event] ------------------------")
+                var accesstoken = call.request.headers["Authorization"] ?: throw OAuth2Exception.InvalidGrant("Missing token")
+                accesstoken = accesstoken.cleanTokenTag()
+                val worker_username = checkAccessToken(UserType.USER, accesstoken)
+                log.debug("[worker/event] Access for $worker_username")
+
+                // retrieve event
+                val events = TaskCtrl().getEvents()
+                log.debug("[worker/event] Retrieved type of events.")
+
+                call.respond(HttpStatusCode.OK, events)
+                log.debug("[worker/event] Ok.")
+
             }
             catch (e: BaseApplicationResponse.ResponseAlreadySentException){
             }

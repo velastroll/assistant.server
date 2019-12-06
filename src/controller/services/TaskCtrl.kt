@@ -1,6 +1,7 @@
 package com.percomp.assistant.core.controller.services
 
 import com.percomp.assistant.core.dao.*
+import com.percomp.assistant.core.model.Event
 import com.percomp.assistant.core.model.Task
 import com.percomp.assistant.core.util.Constants
 import com.percomp.assistant.core.util.communication.RaspiAction
@@ -54,5 +55,9 @@ class TaskCtrl {
         if (task.isNullOrEmpty()) throw IllegalArgumentException("Task cannot be null.")
         val date = Instant.now().toString()
         TaskDAO().put(device, task, date)
+    }
+
+    suspend fun getEvents(): List<Event> {
+        return EventDAO().getAll()
     }
 }

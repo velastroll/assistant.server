@@ -2,14 +2,8 @@ package com.percomp.assistant.core.controller.services
 
 import com.percomp.assistant.core.config.Token
 import com.percomp.assistant.core.config.newTokens
-import com.percomp.assistant.core.dao.DeviceDAO
-import com.percomp.assistant.core.dao.PeopleDAO
-import com.percomp.assistant.core.dao.RelationDAO
-import com.percomp.assistant.core.dao.StatusDAO
-import com.percomp.assistant.core.model.Device
-import com.percomp.assistant.core.model.Relation
-import com.percomp.assistant.core.model.State
-import com.percomp.assistant.core.model.UserType
+import com.percomp.assistant.core.dao.*
+import com.percomp.assistant.core.model.*
 import com.percomp.assistant.core.services.CredentialRequest
 import com.percomp.assistant.core.util.communication.RaspiAction
 import io.ktor.auth.OAuth2Exception
@@ -46,21 +40,29 @@ class DeviceCtrl {
         DeviceDAO().post(mac = mac)
     }
 
-    suspend fun getAll(): List<Device> {
+    suspend fun getAll(): List<Device4W> {
         // retrieve all
         val devices = DeviceDAO().getAll()
-        val status = ArrayList<State?>()
-        // retrieve the last status
+        val devices4w = ArrayList<Device4W>()
         for ( d in devices ) {
-            //retrieve status
-            val state = StatusDAO().get(mac=d.mac)
-            status.add(state)
+            val d4 = Device4W(device = d.mac)
+            // retrieve the last status
+            d4.last_status = StatusDAO().getLastFive(mac=d.mac)
+            // retrieve last events
+            d4.last_events = StatusDAO().getLastFiveTasks(mac = d.mac)
+            // retrieve last intents
+
             // retrieve relation
-            val relation = RelationDAO().get(mac = d.mac)
-            d.relation = relation
-            d.status = status
+            d4.relation = RelationDAO().get(mac = d.mac)
+            // retrieve pending actions
+            d4.pending = TaskDAO().getPending(d.mac)
+            // retrieve position
+
+            //add to list
+            devices4w.add(d4)
+
         }
-        return devices
+        return devices4w
     }
 
     suspend fun addRelation(nif: String, device: String) {

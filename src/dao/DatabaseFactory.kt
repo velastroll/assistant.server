@@ -32,6 +32,7 @@ object DatabaseFactory {
             create(Locations)
             create(Events)
             create(Tasks)
+            create(Confs)
 
             // insert admin account
             val check = (Users).select{

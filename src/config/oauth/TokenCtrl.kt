@@ -33,18 +33,18 @@ fun String.cleanTokenTag() : String{
 @KtorExperimentalAPI
 suspend fun checkAccessToken(device : UserType, access_token: String) : String? {
     val accessToken = tokenStore.accessToken(access_token) ?: throw OAuth2Exception.InvalidGrant("Unarchived token.")
-    log.info("${access_token} => AT: $accessToken")
-    var toReturn = DeviceCtrl().exist(mac = accessToken!!.identity!!.username)
-    log.info("toReturn: $toReturn")
+    log.debug("${access_token} => AT: $accessToken")
+    val toReturn = DeviceCtrl().exist(mac = accessToken!!.identity!!.username)
+    log.debug("toReturn: $toReturn")
     if (toReturn != null && device == UserType.DEVICE) {
 
-        log.info("return: ${toReturn.mac}")
+        log.debug("return: ${toReturn.mac}")
         return toReturn.mac
     }
     else {
-        log.info("check if user")
-        var user = UserCtrl().exist(accessToken.identity!!.username)
-        log.info("user: $user")
+        log.debug("check if user")
+        val user = UserCtrl().exist(accessToken.identity!!.username)
+        log.debug("user: $user")
         if (user == null) return null
         else return user.username
     }
@@ -130,8 +130,10 @@ fun newTokens(username: String, clientId: String = "login") : Token{
 /**
  * Data class to represent a couple of token.
  */
-data class Token(val access_token: String, val refresh_token: String?)
-
+data class Token(
+    val access_token: String,
+    val refresh_token: String?
+)
 
 // Tools to generate the token
 private val charPool : List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')

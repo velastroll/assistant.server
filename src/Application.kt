@@ -151,6 +151,7 @@ fun Application.coreModule() {
         relation()
         location()
         auth()
+        conf()
     }
 }
 

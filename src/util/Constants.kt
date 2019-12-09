@@ -1,7 +1,7 @@
 package com.percomp.assistant.core.util
 
 object Constants {
-    val TIMESTAMP = 25
+    val TIMESTAMP = 28
     val IDENTIFIER = 17
     val SALT = 16
     val NAME = 16

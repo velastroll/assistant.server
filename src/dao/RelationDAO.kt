@@ -96,7 +96,7 @@ class RelationDAO {
 
 
     suspend fun getCurrentByUser(user: String) : com.percomp.assistant.core.model.Relation? = dbQuery {
-        Relation.select({Relation.user eq user})
+        Relation.select({Relation.user eq user and (Relation.to.isNull())})
             .map {
                 com.percomp.assistant.core.model.Relation(
                     device = it[Relation.device],

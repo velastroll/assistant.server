@@ -53,4 +53,19 @@ class LocationDAO {
         } as ArrayList<Location>
     }
 
+    /**
+     * Retrieves a specific location
+     */
+    suspend fun getByPostalCode(postcode: Int): Location? = dbQuery {
+        return@dbQuery Locations.select({Locations.postcode eq postcode}).map {
+            com.percomp.assistant.core.controller.services.Location(
+                name = it[Locations.name],
+                postcode = it[Locations.postcode],
+                latitude = it[Locations.lat],
+                longitude = it[Locations.lon],
+                people = ArrayList()
+            )
+        }.firstOrNull()
+    }
+
 }

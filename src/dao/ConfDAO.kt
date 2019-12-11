@@ -21,11 +21,11 @@ class ConfDAO {
      */
     suspend fun get(device : String, pending : Boolean = true) : ConfData? = dbQuery{
         return@dbQuery Confs
-            .select({Confs.device eq device and (Confs.pending eq pending)})
+            .select({Confs.receiver eq device and (Confs.pending eq pending)})
             .orderBy(Confs.timestamp, isAsc=false)
             .map {
                 ConfData(
-                    device = it[Confs.device],
+                    device = it[Confs.receiver],
                     body = ConfBody( sleep_sec = it[Confs.sleep_sec]),
                     timestamp=it[Confs.timestamp],
                     pending = it[Confs.pending]
@@ -39,7 +39,7 @@ class ConfDAO {
      * @param timestamp configuration unique timestamp
      */
     suspend fun done(mac: String, timestamp: String) = dbQuery{
-        Confs.update ({ Confs.device eq mac and (Confs.timestamp eq timestamp) }){
+        Confs.update ({ Confs.receiver eq mac and (Confs.timestamp eq timestamp) }){
             it[Confs.pending] = false
         }
     }
@@ -51,10 +51,28 @@ class ConfDAO {
      */
     suspend fun post(data : ConfData) = dbQuery{
         Confs.insert {
-            it[Confs.device] = data.device!!
+            it[Confs.receiver] = data.device!!
             it[Confs.sleep_sec] = data.body!!.sleep_sec
             it[Confs.timestamp] = data.timestamp
-            it[Confs.pending] = true
+            it[Confs.pending] = data.pending
         }
+    }
+
+    /**
+     * Deletes a specific configuration
+     * @param device identifier of configuration to delete. Could be a postcode, a device identifier, o 'GLOBAL'.
+     * @param timestamp date identifier of the configuration to delete
+     */
+    suspend fun delete(id : String, timestamp: String) = dbQuery {
+        Confs.deleteWhere{Confs.timestamp eq timestamp and (Confs.receiver eq id)}
+    }
+
+    /**
+     * Deletes a specific configuration
+     * @param device identifier of configuration to delete. Could be a postcode, a device identifier, o 'GLOBAL'.
+     * @param timestamp date identifier of the configuration to delete
+     */
+    suspend fun delete(id : String, pending: Boolean) = dbQuery {
+        Confs.deleteWhere{Confs.pending eq pending and (Confs.receiver eq id)}
     }
 }

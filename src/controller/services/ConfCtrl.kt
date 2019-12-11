@@ -89,7 +89,6 @@ class ConfCtrl {
         return confs
     }
 
-
     /**
      * Returns the current configuration.
      */
@@ -167,7 +166,7 @@ class ConfCtrl {
     /**
      * Device has been updated, so this updates the current configuration.
      */
-    suspend fun updated(timestamp: String, mac: String){
+    suspend fun updated(timestamp: String?, mac: String?){
 
         // checks values
         if (mac.isNullOrEmpty()) throw OAuth2Exception.InvalidGrant("Not valid device")

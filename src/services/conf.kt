@@ -32,7 +32,7 @@ fun Route.conf(){
                 val device = checkAccessToken(UserType.DEVICE, accesstoken)
                 // retrieve configuration
                 log.info("[device/conf] retrieving data")
-                val data : ConfData = ConfCtrl().get(device) ?: throw IllegalStateException("This device has the standard configuration.")
+                val data : ConfData = ConfCtrl().getActual(device) ?: throw IllegalStateException("This device has the standard configuration.")
                 // respond it
                 log.info("[device/conf] responding it")
                 call.respond(HttpStatusCode.OK, data)
@@ -68,9 +68,9 @@ fun Route.conf(){
                 val accesstoken = call.request.headers["Authorization"]!!.cleanTokenTag()
                 val device = checkAccessToken(UserType.DEVICE, accesstoken)
                 val timestamp = call.parameters["timestamp"] ?: throw IllegalArgumentException("No timestamp of configuration")
-                log.info("[device/conf/TIMESTAMP] timestamp = ${timestamp}")
+                log.info("[device/conf/TIMESTAMP] timestamp = $timestamp")
                 // Mark as a done configuration
-                ConfCtrl().complete(device, timestamp)
+                ConfCtrl().updated(device, timestamp)
                 log.info("[device/conf/TIMESTAMP] respond")
                 // respond it
                 call.respond(HttpStatusCode.OK, "Configuration has been updated on device.")
@@ -110,12 +110,34 @@ fun Route.conf(){
                 // retrieve conf
                 val data = call.receive<ConfData>()
                 // save it
-                ConfCtrl().create(configuration = data)
+                ConfCtrl().new(data = data)
                 // response
                 call.respond(HttpStatusCode.OK)
             }
             catch (e : Exception){
                 log.warn("[w/conf] Error: $e")
+                call.respond(HttpStatusCode.InternalServerError)
+            }
+        }
+
+        /**
+         * Creates a new configuration for a specific device
+         */
+        get("conf/{device}"){
+            try {
+                log.debug("[w/conf/{d}] --")
+                // checks authorization
+                val accesstoken = call.request.headers["Authorization"]!!.cleanTokenTag()
+                val worker = checkAccessToken(UserType.USER, accesstoken)
+                val device = call.parameters["device"] ?: throw IllegalArgumentException("No device")
+                log.debug("Access for $worker")
+                // retrieves it
+                val c = ConfCtrl().getConfs(mac = device)
+                // responds it
+                call.respond(HttpStatusCode.OK, c)
+            }
+            catch (e : Exception){
+                log.warn("[w/conf({d}] Error: $e")
                 call.respond(HttpStatusCode.InternalServerError)
             }
         }

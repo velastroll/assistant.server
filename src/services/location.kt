@@ -112,6 +112,46 @@ fun Route.location(){
                 }
             }
         }
+
+        get("towns/{t}"){
+            try {
+                log.info("[worker/town] Retrieving token.")
+                // check authorization
+                var accesstoken : String = call.request.headers["Authorization"] ?: throw OAuth2Exception.InvalidGrant("No token")
+                accesstoken = accesstoken.cleanTokenTag()
+                val worker = checkAccessToken(UserType.USER, accesstoken)
+                val postcode = call.parameters["t"]
+                log.info("[worker/town] User $worker logged.")
+
+                val location = LocationCtrl().retrieve(postcode) ?: throw IllegalArgumentException("Does not exist location with postalcode: $postcode")
+
+                log.info("[worker/town] OK.")
+                call.respond(HttpStatusCode.OK, location)
+            }
+            catch (e: BaseApplicationResponse.ResponseAlreadySentException){
+            }
+            catch(e : OAuth2Exception.InvalidGrant){
+                try {
+                    log.warn("Unauthorized: $e")
+                    call.respond(HttpStatusCode.Unauthorized)
+                } catch (e: BaseApplicationResponse.ResponseAlreadySentException){
+                }
+            }
+            catch(e : IllegalArgumentException){
+                try {
+                    log.warn("[worker/towns] Cannot get towns: ${e.message}")
+                    call.respond(HttpStatusCode.BadRequest)
+                } catch (e: BaseApplicationResponse.ResponseAlreadySentException){
+                }
+            }
+            catch(e : Exception){
+                try {
+                    log.warn("Internal error: $e")
+                    call.respond(HttpStatusCode.InternalServerError)
+                } catch (e: BaseApplicationResponse.ResponseAlreadySentException){
+                }
+            }
+        }
     }
 }
 

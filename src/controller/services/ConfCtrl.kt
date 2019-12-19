@@ -117,7 +117,6 @@ class ConfCtrl {
      * It could be either GLOBAL as for a postal code, or for a specific device.
      */
     suspend fun new(data: ConfData){
-
         if (data.device.isNullOrEmpty())
             throw IllegalArgumentException("Device is not specified.")
         if (data.body == null)
@@ -125,9 +124,10 @@ class ConfCtrl {
         if (data.body!!.sleep_sec < 10)
             throw IllegalArgumentException("Sleep time ${data.body!!.sleep_sec} should be greater or equal than 10 seconds.")
 
+        data.timestamp = Instant.now().toString()
         when{
             data.device == "GLOBAL" -> {
-                // delete old global
+                // delete old global∫
                 ConfDAO().delete("GLOBAL", pending = false)
                 // Configure irrelevant values
                 data.pending = false
@@ -169,9 +169,9 @@ class ConfCtrl {
     suspend fun updated(timestamp: String?, mac: String?){
 
         // checks values
-        if (mac.isNullOrEmpty()) throw OAuth2Exception.InvalidGrant("Not valid device")
-        if (timestamp.isNullOrEmpty()) throw OAuth2Exception.InvalidGrant("Not valid timestamp")
-        DeviceDAO().checkExists(mac) ?: throw IllegalStateException("Device does not exist.")
+        if (mac.isNullOrEmpty()) throw OAuth2Exception.InvalidGrant("Not valid device: $mac")
+        if (timestamp.isNullOrEmpty()) throw OAuth2Exception.InvalidGrant("Not valid timestamp: $timestamp")
+        DeviceDAO().checkExists(mac) ?: throw IllegalStateException("Device $mac does not exist.")
 
         // retrieve data
         val confs = getConfs(mac)
@@ -180,28 +180,33 @@ class ConfCtrl {
         // configure database
         if (confs.global != null && confs.global!!.timestamp == timestamp){
             // delete all device conf
+            try {
             ConfDAO().delete(mac, true)
             ConfDAO().delete(mac, false)
+            }catch (e:Exception){println(1)}
             // insert
             actual.body = confs.global!!.body
+            // insert new configuration
+            ConfDAO().post(actual)
         } else if (confs.location != null && confs.location!!.timestamp == timestamp){
             // delete all device conf
+            try{
             ConfDAO().delete(mac, true)
             ConfDAO().delete(mac, false)
+            }catch (e:Exception){println(2)}
             // insert
             actual.body = confs.location!!.body
+            // insert new configuration
+            ConfDAO().post(actual)
         } else if (confs.pendingConf != null && confs.pendingConf!!.timestamp == timestamp){
             // delete all device conf
-            ConfDAO().delete(mac, true)
+            try{
             ConfDAO().delete(mac, false)
-            // insert
-            actual.body = confs.location!!.body
+            ConfDAO().done(mac, timestamp)
+            }catch (e:Exception){println(3)}
         } else {
             throw IllegalArgumentException("Invalid timestamp $timestamp for device $mac")
         }
-
-        // insert new configuration
-        ConfDAO().post(actual)
     }
 }
 

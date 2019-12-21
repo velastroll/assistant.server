@@ -87,6 +87,37 @@ fun Route.relation(){
             }
         }
 
+        /**
+         * Retrieve the relation of a specific device.
+         */
+        get("relation/{device}"){
+            try {
+                // check authrorization
+                val accesstoken = call.request.headers["Authorization"]!!.cleanTokenTag()
+                val worker = checkAccessToken(UserType.USER, accesstoken)
+                val device = call.parameters["device"] ?: throw IllegalArgumentException("Device is not specified")
+                // add relation
+                val relation = DeviceCtrl().getRelation(device) ?: throw IllegalArgumentException("Device has not relation")
+                // respond it
+                call.respond(relation)
+            }
+            catch (e: BaseApplicationResponse.ResponseAlreadySentException){
+            }
+            catch(e : OAuth2Exception.InvalidGrant){
+                try {
+                    log.warn("Unauthorized: $e")
+                    call.respond(HttpStatusCode.Unauthorized)
+                } catch (e: BaseApplicationResponse.ResponseAlreadySentException){
+                }
+            }
+            catch(e : Exception){
+                try {
+                    log.warn("Internal error: $e")
+                    call.respond(HttpStatusCode.InternalServerError)
+                } catch (e: BaseApplicationResponse.ResponseAlreadySentException){
+                }
+            }
+        }
     }
 }
 

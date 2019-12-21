@@ -29,10 +29,10 @@ fun Route.conf(){
                 // check authrorization
                 log.info("[device/conf] -------")
                 val accesstoken = call.request.headers["Authorization"]!!.cleanTokenTag()
-                val device = checkAccessToken(UserType.DEVICE, accesstoken)
+                val device = checkAccessToken(UserType.DEVICE, accesstoken)!!
                 // retrieve configuration
                 log.info("[device/conf] retrieving data")
-                val data : ConfData = ConfCtrl().getActual(device) ?: throw IllegalStateException("This device has the standard configuration.")
+                val data : ConfData = ConfCtrl().getActual(device)
                 // respond it
                 log.info("[device/conf] responding it")
                 call.respond(HttpStatusCode.OK, data)
@@ -69,8 +69,9 @@ fun Route.conf(){
                 val device = checkAccessToken(UserType.DEVICE, accesstoken)
                 val timestamp = call.parameters["timestamp"] ?: throw IllegalArgumentException("No timestamp of configuration")
                 log.info("[device/conf/TIMESTAMP] timestamp = $timestamp")
+                log.info("[device/conf/TIMESTAMP] device = $device")
                 // Mark as a done configuration
-                ConfCtrl().updated(device, timestamp)
+                ConfCtrl().updated(mac = device, timestamp = timestamp)
                 log.info("[device/conf/TIMESTAMP] respond")
                 // respond it
                 call.respond(HttpStatusCode.OK, "Configuration has been updated on device.")
@@ -112,7 +113,7 @@ fun Route.conf(){
                 // save it
                 ConfCtrl().new(data = data)
                 // response
-                call.respond(HttpStatusCode.OK)
+                call.respond(HttpStatusCode.OK, "Added new configuration")
             }
             catch (e : Exception){
                 log.warn("[w/conf] Error: $e")
@@ -121,7 +122,7 @@ fun Route.conf(){
         }
 
         /**
-         * Creates a new configuration for a specific device
+         * Retrieves the configuration of a specific device
          */
         get("conf/{device}"){
             try {

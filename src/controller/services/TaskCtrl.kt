@@ -24,13 +24,36 @@ class TaskCtrl {
 
         // check values
         if (task.device.isNullOrEmpty()) throw IllegalArgumentException("Device cannot be empty.")
-        task.device = task.device!!
-        if (DeviceCtrl().exist(task.device!!) == null) throw IllegalArgumentException("Device does not exist.")
         if (task.event.isNullOrEmpty()) throw IllegalArgumentException("Task must be a type of event.")
         EventDAO().get(task.event!!) ?: throw IllegalArgumentException("Event '${task.event}' does not exist.")
-        task.at = Instant.now().toString()
-        task.by = by
-        TaskDAO().post(task = task)
+
+        // send tasks
+        if(task.device == "GLOBAL"){
+            // global petition, send petition for all devices
+            val ds = DeviceDAO().getAll()
+            for (d in ds){
+                task.device = d.mac
+                task.at = Instant.now().toString()
+                task.by = by
+                TaskDAO().post(task = task)
+            }
+        } else if (task.device!!.length < 10){
+            // location: send petition for all location devices
+            val ds = DeviceDAO().getAll().filter { d -> d.relation != null && d.relation!!.user!!.postcode.toString() == task.device }
+            for (d in ds){
+                task.device = d.mac
+                task.at = Instant.now().toString()
+                task.by = by
+                TaskDAO().post(task = task)
+            }
+
+        } else {
+            // device
+            if (DeviceCtrl().exist(task.device!!) == null) throw IllegalArgumentException("Device does not exist.")
+            task.at = Instant.now().toString()
+            task.by = by
+            TaskDAO().post(task = task)
+        }
     }
 
     suspend fun newStatus(device: String, status: RaspiAction, content: String? = null) : List<Task>{

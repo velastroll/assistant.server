@@ -43,5 +43,6 @@ data class Relation (
     var user: Person?=null,
     var from: String,
     var to: String? = null,
-    var position: Position? = null
+    var position: Position? = null,
+    var info : String? = null
 )

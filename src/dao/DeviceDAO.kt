@@ -53,14 +53,11 @@ class DeviceDAO {
      **/
     suspend fun checkExists(mac: String): Device? = dbQuery {
 
-        var device: Device? = null
-        // Get an account with this username
-        Devices.select { Devices.id eq mac }.map {
-            device = Device(
+        return@dbQuery Devices.select { Devices.id eq mac }.map {
+            Device(
                 mac = mac
             )
-        }.singleOrNull()
-        device
+        }.firstOrNull()
     }
 
     /**

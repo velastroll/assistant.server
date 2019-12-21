@@ -85,4 +85,12 @@ class DeviceCtrl {
 
     }
 
+    suspend fun getRelation(mac: String) : Relation?{
+        val r = RelationDAO().get(mac)
+        if (r!=null) {
+            val l = LocationDAO().getByPostalCode(r.user!!.postcode) ?: throw IllegalArgumentException("Does not exist a location with postal code ${r.user!!.postcode}")
+            r.info = l.name
+        }
+        return r
+    }
 }

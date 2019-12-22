@@ -18,11 +18,11 @@
         <async-supported>true</async-supported>
 
         <!-- 100mb max file upload, optional -->
-        <multipart-config>
+        <multipart-app.config>
             <max-file-size>304857600</max-file-size>
             <max-request-size>304857600</max-request-size>
             <file-size-threshold>0</file-size-threshold>
-        </multipart-config>
+        </multipart-app.config>
     </servlet>
 
     <servlet-mapping>

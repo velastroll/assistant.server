@@ -19,7 +19,7 @@ class ConfCtrl {
         // check it on db
         if (DeviceDAO().checkExists(mac) == null) throw IllegalStateException("Device does not exist.")
 
-        // retrieve pending or actual config
+        // retrieve pending or actual app.config
         val conf = ConfDAO().get(mac, pending = true) ?: ConfDAO().get(mac, pending = false)
 
         // return it
@@ -56,7 +56,7 @@ class ConfCtrl {
         configuration.pending = true
         configuration.timestamp = Instant.now().toString()
 
-        // creates config
+        // creates app.config
         ConfDAO().post(data = configuration)
     }
 

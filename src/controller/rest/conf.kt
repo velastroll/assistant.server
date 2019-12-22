@@ -57,8 +57,8 @@ fun Route.conf(){
         }
 
         /**
-         * Device informs about the completed task of update config
-         * @param timestamp identifier of the config data used to update device.
+         * Device informs about the completed task of update app.config
+         * @param timestamp identifier of the app.config data used to update device.
          */
         put("conf/{timestamp}"){
             try {

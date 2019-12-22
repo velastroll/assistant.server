@@ -55,7 +55,7 @@ object DatabaseFactory {
      *
      * but if the DB is deployed in different container than the KtorProject, for example using Docker-Compose:
      *
-     * services:
+     * restcontroller:
      *      postgres:
      *          image:  "postgres:VERSION"
      *          ports:

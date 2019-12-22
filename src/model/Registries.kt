@@ -1,4 +1,4 @@
-package com.percomp.assistant.core.domain
+package com.percomp.assistant.core.model
 
 import com.percomp.assistant.core.util.Constants
 import com.percomp.assistant.core.util.communication.RaspiAction

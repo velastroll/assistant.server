@@ -15,7 +15,7 @@ import java.security.MessageDigest
 class ConfDAO {
 
     /**
-     * Retrieve the device config
+     * Retrieve the device app.config
      * @param device mac direction
      * @return [ConfData] or null
      */

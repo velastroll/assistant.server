@@ -10,7 +10,7 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 
-class LocationDAO {
+class LocationRepo {
 
     /**
      * Insert a new town in the database

@@ -3,6 +3,7 @@ package controller.services
 import com.percomp.assistant.core.model.Device
 import com.percomp.assistant.core.model.Relation
 import com.percomp.assistant.core.model.State
+import com.percomp.assistant.core.model.StateBasic
 import com.percomp.assistant.core.util.communication.RaspiAction
 
 interface DeviceService {
@@ -13,7 +14,7 @@ interface DeviceService {
      * @param mac is the device identifier.
      * @param password is the secret device key.
      */
-    fun check (mac : String, password : String)
+    fun check (mac : String, password : String) : Boolean
 
 
     /**
@@ -74,6 +75,6 @@ interface DeviceService {
      * This method retrieves the last five status of a specific device.
      * @param mac is the device identifier.
      */
-    fun getLastFiveStatus(mac : String) : List<State>
+    fun getLastFiveStatus(mac : String) : List<StateBasic>
 
 }

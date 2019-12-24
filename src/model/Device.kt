@@ -35,14 +35,14 @@ data class State(
 
 data class Device4W(
     var device: String? = null,
-    var last_status: List<State4W>? = null,
+    var last_status: List<StateBasic>? = null,
     var last_events: List<Event4W>? = null,
     var last_intents: List<Intent4W>? = null,
     var relation: Relation? = null,
     var pending: List<Task>? = null
 )
 
-data class State4W(
+data class StateBasic(
     val type: String? = null,
     val timestamp: String
 )

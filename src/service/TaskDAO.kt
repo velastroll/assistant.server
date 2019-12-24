@@ -1,14 +1,9 @@
-package com.percomp.assistant.core.dao
+package com.percomp.assistant.core.services
 
 import com.percomp.assistant.core.dao.DatabaseFactory.dbQuery
-import com.percomp.assistant.core.domain.Events
-import com.percomp.assistant.core.domain.Tasks
 import com.percomp.assistant.core.model.Event
 import com.percomp.assistant.core.model.Task
 import com.percomp.assistant.core.util.Constants
-import org.jetbrains.exposed.sql.*
-import java.security.MessageDigest
-
 class TaskDAO {
 
     /**

@@ -1,4 +1,4 @@
-package com.percomp.assistant.core.dao
+package com.percomp.assistant.core.services
 
 import com.percomp.assistant.core.controller.services.Location
 import com.percomp.assistant.core.controller.services.LocationService

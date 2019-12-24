@@ -3,7 +3,6 @@ package com.percomp.assistant.core.controller.services
 import com.percomp.assistant.core.config.Token
 import com.percomp.assistant.core.config.newTokens
 import com.percomp.assistant.core.dao.PeopleDAO
-import com.percomp.assistant.core.dao.RelationDAO
 import com.percomp.assistant.core.dao.UserDAO
 import com.percomp.assistant.core.model.Person
 import com.percomp.assistant.core.model.User

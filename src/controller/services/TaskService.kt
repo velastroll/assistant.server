@@ -1,6 +1,7 @@
 package controller.services
 
 import com.percomp.assistant.core.model.Event
+import com.percomp.assistant.core.model.Event4W
 import com.percomp.assistant.core.model.Task
 
 interface TaskService {
@@ -26,6 +27,13 @@ interface TaskService {
      * @return the list of events.
      */
     fun getAllEvents() : List<Event>
+
+    /**
+     * This method retrieves the last five task done by the speicifed device.
+     * @param mac is the device identifier.
+     * @return the last five tasks.
+     */
+    fun getLastFiveTasks(mac: String): List<Event4W>
 
     /**
      * This method adds a new task for a specific device.

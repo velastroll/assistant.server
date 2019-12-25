@@ -1,10 +1,6 @@
 package app.di
 
-import com.percomp.assistant.core.controller.domain.ConfCtrl
-import com.percomp.assistant.core.controller.domain.DeviceCtrl
-import com.percomp.assistant.core.controller.domain.TaskCtrl
-import com.percomp.assistant.core.controller.domain.UserCtrl
-import com.percomp.assistant.core.controller.services.LocationCtrl
+import com.percomp.assistant.core.app.config.oauth.TokenCtrl
 import com.percomp.assistant.core.controller.services.LocationService
 import com.percomp.assistant.core.dao.ConfRepo
 import com.percomp.assistant.core.dao.DeviceRepo
@@ -20,6 +16,8 @@ import org.koin.dsl.module
  * This instances could be injected now, applying the dependency inversion principle.
  */
 val myModule = module {
+
+
     // Declares a singleton of repository instance
     single { ConfRepo() as ConfService }
     single { DeviceRepo() as DeviceService }
@@ -27,11 +25,5 @@ val myModule = module {
     single { PeopleRepo() as PeopleService }
     single { TaskRepo() as TaskService }
     single { UserRepo() as UserService }
-
-    // Creates a singleton instance of domain controllers,  auto-injecting it the service instance
-    single { ConfCtrl(get(), get(), get()) }
-    single { DeviceCtrl(get(), get(), get(), get()) }
-    single { LocationCtrl(get(), get()) }
-    single { TaskCtrl(get(), get()) }
-    single { UserCtrl(get(), get(), get()) }
+    single { TokenCtrl() }
 }

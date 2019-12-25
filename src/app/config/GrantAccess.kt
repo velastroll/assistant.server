@@ -1,32 +1,39 @@
-package  com.percomp.assistant.core.config
+package  com.percomp.assistant.core.app.config
 
-import com.percomp.assistant.core.dao.UserDAO
+import com.percomp.assistant.core.app.config.oauth.TokenCtrl
 import com.percomp.assistant.core.model.UserType
 import io.ktor.util.KtorExperimentalAPI
 
-/**
- * Grant access in function of authentication and uri to access.
- */
-@KtorExperimentalAPI
-suspend fun checkUri(uri : String, auth : String?) : Boolean {
-    return when{
 
-        // public operations: to log in
-        "/api/conf/login" in uri    -> return true
-        "/oauth" in uri             -> return true
-        "login" in uri              -> return true
-        "/refreshtoken" in uri      -> return true
-        "/" == uri                  -> return true
-        "test" in uri               -> return true
-        "towns" in uri              -> return true
+class GrantAccessCtrl {
 
-        // only workers
-        "/worker/" in uri           -> return (checkAccessToken(UserType.USER, auth!!.cleanTokenTag()) != null)
-        "/device/" in uri           -> return (checkAccessToken(UserType.DEVICE, auth!!.cleanTokenTag()) != null)
+    private val auth = TokenCtrl()
 
-        // everyone authenticated -> devices
-        else                        ->
-            (auth != null) && (checkAccessToken(UserType.DEVICE, auth.cleanTokenTag()) != null)
+    /**
+     * Grant access in function of authentication and uri to access.
+     */
+    @KtorExperimentalAPI
+    fun checkUri(uri: String, tkn: String?): Boolean {
+        println("Entered on GrantAccesCtrl")
+        return when {
+
+            // public operations: to log in
+            "/api/conf/login" in uri -> return true
+            "/oauth" in uri -> return true
+            "login" in uri -> return true
+            "/refreshtoken" in uri -> return true
+            "/" == uri -> return true
+            "test" in uri -> return true
+            "towns" in uri -> return true
+
+            // only workers
+            "/worker/" in uri -> return (auth.checkAccessToken(UserType.USER, auth.cleanTokenTag(tkn!!)) != null)
+            "/device/" in uri -> return (auth.checkAccessToken(UserType.DEVICE, auth.cleanTokenTag(tkn!!)) != null)
+
+            // everyone authenticated -> devices
+            else ->
+                (tkn != null) && (auth.checkAccessToken(UserType.DEVICE, auth.cleanTokenTag(tkn)) != null)
+        }
     }
 }
 

@@ -3,12 +3,13 @@ package com.percomp.assistant.core.controller.services
 import com.percomp.assistant.core.model.Person
 import com.percomp.assistant.core.model.Position
 import controller.services.PeopleService
+import org.koin.core.KoinComponent
+import org.koin.core.inject
 
-class LocationCtrl (
-    private val locationService : LocationService,
-    private val peopleService: PeopleService
+class LocationCtrl : KoinComponent{
 
-){
+    private val locationService : LocationService by inject()
+    private val peopleService: PeopleService by inject()
 
     fun add(name : String, postCode : Int, lat: Double, lon: Double){
         if (name.length < 3) throw IllegalArgumentException("Name is too short.")

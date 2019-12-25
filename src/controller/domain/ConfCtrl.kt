@@ -6,13 +6,17 @@ import com.percomp.assistant.core.model.*
 import controller.services.ConfService
 import controller.services.DeviceService
 import io.ktor.auth.OAuth2Exception
+import org.koin.core.KoinComponent
+import org.koin.core.inject
 import java.time.Instant
 
-class ConfCtrl(
-    private val deviceService: DeviceService,
-    private val confService : ConfService,
-    private val locationService: LocationService
-) {
+class ConfCtrl: KoinComponent{
+
+
+    private val deviceService: DeviceService by inject()
+    private val confService : ConfService by inject()
+    private val locationService: LocationService by inject()
+
 
     /**
      * Retrieve the pending or actual configuration of the device

@@ -1,6 +1,6 @@
 package com.percomp.assistant.core.config.backup.scripts
 
-import com.percomp.assistant.core.domain.Provinces
+import com.percomp.assistant.core.model.Provinces
 import org.jetbrains.exposed.sql.insert
 
 fun addprovinces() {

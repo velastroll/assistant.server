@@ -1,21 +1,26 @@
 package com.percomp.assistant.core.controller.domain
 
-import com.percomp.assistant.core.config.Token
-import com.percomp.assistant.core.config.newTokens
+import com.percomp.assistant.core.app.config.oauth.Token
+import com.percomp.assistant.core.app.config.oauth.TokenCtrl
 import com.percomp.assistant.core.model.Person
 import com.percomp.assistant.core.model.User
-import com.percomp.assistant.core.services.CredentialRequest
+import com.percomp.assistant.core.rest.CredentialRequest
 import controller.services.DeviceService
 import controller.services.PeopleService
 import controller.services.UserService
 import io.ktor.auth.OAuth2Exception
+import org.koin.core.KoinComponent
+import org.koin.core.inject
 import java.lang.IllegalArgumentException
 
-class UserCtrl (
-    private val userService: UserService,
-    private val peopleService: PeopleService,
-    private val deviceService: DeviceService
-){
+class UserCtrl : KoinComponent {
+
+
+    private val userService: UserService by inject()
+    private val peopleService: PeopleService by inject()
+    private val deviceService: DeviceService by inject()
+    private val authService : TokenCtrl by inject()
+
 
     fun check(auth : CredentialRequest) : Token {
 
@@ -27,7 +32,7 @@ class UserCtrl (
         val user = userService.check(auth.user, auth.password) ?: throw OAuth2Exception.InvalidGrant("Wrong credentials.")
 
         // store tokens
-        val tokens = newTokens(username = user.username)
+        val tokens = authService.newTokens(username = user.username)
 
         // return it
         return tokens

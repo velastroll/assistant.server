@@ -1,14 +1,12 @@
-package com.percomp.assistant.core
+package com.percomp.assistant.core.rest
 
-import com.percomp.assistant.core.config.checkAccessToken
-import com.percomp.assistant.core.config.cleanTokenTag
+
+import com.percomp.assistant.core.app.config.oauth.TokenCtrl
 import com.percomp.assistant.core.controller.domain.DeviceCtrl
 import com.percomp.assistant.core.controller.domain.TaskCtrl
 import com.percomp.assistant.core.model.Event
 import com.percomp.assistant.core.model.Task
 import com.percomp.assistant.core.model.UserType
-import com.percomp.assistant.core.services.CredentialRequest
-import com.percomp.assistant.core.services.log
 import com.percomp.assistant.core.util.communication.RaspiAction
 import com.percomp.assistant.core.util.communication.Response
 import io.ktor.application.call
@@ -23,12 +21,12 @@ import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
 import io.ktor.server.engine.BaseApplicationResponse
-import org.koin.ktor.ext.inject
 
 fun Route.basicAction(){
 
-    val deviceCtrl : DeviceCtrl by inject()
-    val taskCtrl : TaskCtrl by inject()
+    val deviceCtrl = DeviceCtrl()
+    val taskCtrl = TaskCtrl()
+    val auth = TokenCtrl()
 
     route("device"){
 
@@ -76,8 +74,8 @@ fun Route.basicAction(){
                 // check authorization
                 var accesstoken =
                     call.request.headers["Authorization"] ?: throw OAuth2Exception.InvalidGrant("Missing token.")
-                accesstoken = accesstoken.cleanTokenTag()
-                val device = checkAccessToken(UserType.DEVICE, accesstoken)
+                accesstoken = auth.cleanTokenTag(accesstoken)
+                val device = auth.checkAccessToken(UserType.DEVICE, accesstoken)
                     ?: throw OAuth2Exception.InvalidGrant("Expired token.")
 
                 log.info("[alive] Retrieved device: $device")
@@ -119,8 +117,8 @@ fun Route.basicAction(){
                 // check authorization
                 var accesstoken =
                     call.request.headers["Authorization"] ?: throw OAuth2Exception.InvalidGrant("Missing token.")
-                accesstoken = accesstoken.cleanTokenTag()
-                val device = checkAccessToken(UserType.DEVICE, accesstoken)
+                accesstoken = auth.cleanTokenTag(accesstoken)
+                val device = auth.checkAccessToken(UserType.DEVICE, accesstoken)
                     ?: throw OAuth2Exception.InvalidGrant("Expired token.")
                 log.info("[doing task] Retrieved device: $device")
 
@@ -167,8 +165,8 @@ fun Route.basicAction(){
                 // check authorization
                 log.debug("[worker/event] --")
                 var accesstoken = call.request.headers["Authorization"] ?: throw OAuth2Exception.InvalidGrant("Missing token")
-                    accesstoken = accesstoken.cleanTokenTag()
-                val worker_username = checkAccessToken(UserType.USER, accesstoken)
+                    accesstoken = auth.cleanTokenTag(accesstoken)
+                val worker_username = auth.checkAccessToken(UserType.USER, accesstoken)
                 val request = call.receive<Event>()
                 log.debug("[worker/event] Access for $worker_username")
                 // add relation
@@ -203,8 +201,8 @@ fun Route.basicAction(){
                 // check authorization
                 log.debug("[worker/event] ------------------------")
                 var accesstoken = call.request.headers["Authorization"] ?: throw OAuth2Exception.InvalidGrant("Missing token")
-                accesstoken = accesstoken.cleanTokenTag()
-                val worker_username = checkAccessToken(UserType.USER, accesstoken)
+                accesstoken = auth.cleanTokenTag(accesstoken)
+                val worker_username = auth.checkAccessToken(UserType.USER, accesstoken)
                 log.debug("[worker/event] Access for $worker_username")
 
                 // retrieve event
@@ -241,8 +239,8 @@ fun Route.basicAction(){
                 // check authorization
                 log.info("[worker/task] --")
                 var accesstoken = call.request.headers["Authorization"] ?: throw OAuth2Exception.InvalidGrant("Missing token")
-                    accesstoken = accesstoken.cleanTokenTag()
-                val worker_username = checkAccessToken(UserType.USER, accesstoken) ?: throw OAuth2Exception.InvalidGrant("Expired token")
+                    accesstoken = auth.cleanTokenTag(accesstoken)
+                val worker_username = auth.checkAccessToken(UserType.USER, accesstoken) ?: throw OAuth2Exception.InvalidGrant("Expired token")
                 val request = call.receive<Task>()
                 log.info("[worker/task] Access for $worker_username")
                 // add relation
@@ -278,8 +276,8 @@ fun Route.basicAction(){
                 // check authorization
                 var accesstoken =
                     call.request.headers["Authorization"] ?: throw OAuth2Exception.InvalidGrant("Missing token.")
-                accesstoken = accesstoken.cleanTokenTag()
-                val worker = checkAccessToken(UserType.DEVICE, accesstoken)
+                accesstoken = auth.cleanTokenTag(accesstoken)
+                val worker = auth.checkAccessToken(UserType.DEVICE, accesstoken)
                     ?: throw OAuth2Exception.InvalidGrant("Expired token.")
 
                 log.info("[worker/tasks] Worker: $worker is authorized.")

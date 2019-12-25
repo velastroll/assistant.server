@@ -1,23 +1,22 @@
-package com.percomp.assistant.core.services
+package com.percomp.assistant.core.rest
 
-import com.percomp.assistant.core.config.checkAccessToken
-import com.percomp.assistant.core.config.cleanTokenTag
-import com.percomp.assistant.core.controller.services.DeviceCtrl
-import com.percomp.assistant.core.dao.DeviceDAO
+import com.percomp.assistant.core.app.config.oauth.TokenCtrl
+import com.percomp.assistant.core.controller.domain.DeviceCtrl
 import com.percomp.assistant.core.model.UserType
 import io.ktor.application.call
 import io.ktor.auth.OAuth2Exception
 import io.ktor.http.HttpStatusCode
-import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.get
-import io.ktor.routing.post
 import io.ktor.routing.route
 import io.ktor.server.engine.BaseApplicationResponse
+import org.koin.ktor.ext.inject
 
 fun Route.devices(){
 
+    val deviceCtrl = DeviceCtrl()
+    val auth = TokenCtrl()
 
     /* for devices */
     route("devices"){
@@ -26,14 +25,17 @@ fun Route.devices(){
 
     /* For workers */
     route("worker"){
+        /**
+         * This call retrieves all the devices.
+         */
         get("devices"){
             try {
                 // check authrorization
-                val accesstoken = call.request.headers["Authorization"]!!.cleanTokenTag()
-                val worker = checkAccessToken(UserType.USER, accesstoken)
+                val accesstoken = auth.cleanTokenTag(call.request.headers["Authorization"]!!)
+                val worker = auth.checkAccessToken(UserType.USER, accesstoken)
                 log.debug("[w/devices] Access for $worker")
                 // retrieve devices
-                val devices = DeviceCtrl().getAll()
+                val devices = deviceCtrl.getAll()
                 // respond it
                 call.respond(HttpStatusCode.OK, devices)
             }
@@ -53,19 +55,6 @@ fun Route.devices(){
                 } catch (e: BaseApplicationResponse.ResponseAlreadySentException){
                 }
             }
-        }
-
-        post("devices/task/"){
-            try {
-                log.debug("[devices/task] --")
-                // check authorization
-                val accesstoken = call.request.headers["Authorization"]!!.cleanTokenTag()
-                val worker = checkAccessToken(UserType.USER, accesstoken)
-                log.debug("Access for $worker")
-                // retrieve task
-                val task = call.receive<DeviceTask>()
-            }
-            catch(e : Exception){}
         }
 
     }

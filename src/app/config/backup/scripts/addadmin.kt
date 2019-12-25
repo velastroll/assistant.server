@@ -1,6 +1,6 @@
 package com.percomp.assistant.core.config.backup.scripts
 
-import com.percomp.assistant.core.domain.Users
+import com.percomp.assistant.core.model.Users
 import com.percomp.assistant.core.util.Credentials
 import org.jetbrains.exposed.sql.insert
 

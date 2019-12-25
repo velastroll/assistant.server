@@ -14,7 +14,6 @@ class GrantAccessCtrl {
      */
     @KtorExperimentalAPI
     fun checkUri(uri: String, tkn: String?): Boolean {
-        println("Entered on GrantAccesCtrl")
         return when {
 
             // public operations: to log in

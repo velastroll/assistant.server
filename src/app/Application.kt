@@ -189,13 +189,10 @@ fun Application.OAuthLoginApplicationWithDeps(oauthHttpClient: HttpClient) {
      */
     intercept(ApplicationCallPipeline.Call){
         try {
-            log.error("Enter on intercept")
             // Check necessary grant for this uri
             val uri = call.request.uri
             val accessToken = call.request.headers["Authorization"]
-            log.error("try to grant access :")
             if (!GrantAccessCtrl().checkUri(uri, accessToken)) throw OAuth2Exception.InvalidGrant("Invalid credentials")
-            log.error("tried")
         }
         catch (e: OAuth2Exception.InvalidGrant) {
             try{

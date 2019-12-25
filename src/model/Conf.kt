@@ -1,5 +1,8 @@
 package com.percomp.assistant.core.model
 
+import com.percomp.assistant.core.util.Constants
+import org.jetbrains.exposed.sql.Table
+
 
 data class ConfData(
     var device : String?,
@@ -11,3 +14,10 @@ data class ConfData(
 data class ConfBody(
     var sleep_sec : Int = 60
 )
+
+object Confs : Table() {
+    val receiver = varchar("receiver", Constants.IDENTIFIER)
+    val timestamp = varchar("timestamp", Constants.TIMESTAMP)
+    val sleep_sec = integer("sleep_sec")
+    val pending = bool("pending")
+}

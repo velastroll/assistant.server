@@ -1,146 +1,152 @@
-package com.percomp.assistant.core.config
+package com.percomp.assistant.core.app.config.oauth
 
-
-import com.percomp.assistant.core.controller.services.DeviceCtrl
-import com.percomp.assistant.core.controller.services.UserCtrl
+import com.percomp.assistant.core.controller.domain.DeviceCtrl
+import com.percomp.assistant.core.controller.domain.UserCtrl
 import com.percomp.assistant.core.model.UserType
-import com.percomp.assistant.core.services.log
+import com.percomp.assistant.core.rest.log
 import com.percomp.assistant.core.tokenStore
 import io.ktor.auth.OAuth2Exception
 import io.ktor.util.KtorExperimentalAPI
 import nl.myndocs.oauth2.identity.Identity
 import nl.myndocs.oauth2.token.AccessToken
 import nl.myndocs.oauth2.token.RefreshToken
+import org.koin.core.KoinComponent
 import java.time.Instant
 
-/**
- * Deletes the token prefix
- */
-fun String.cleanTokenTag() : String{
-    var a = ""
-    if(this.contains("Bearer")) a = this.substring(7)
-    if(this.contains("MAC")) a = this.substring(4)
-    if(this.contains("Basic")) a = this.substring(6)
-    return a
-}
+class TokenCtrl{
 
-/**
- * Checks if an [access_token] is associated to any user/device.
- * @param [access_token] is a String
- * @return null if no user/device is nested for it.
- */
-@Throws(OAuth2Exception.InvalidGrant::class)
-@KtorExperimentalAPI
-suspend fun checkAccessToken(device : UserType, access_token: String) : String? {
-    val accessToken = tokenStore.accessToken(access_token) ?: throw OAuth2Exception.InvalidGrant("Unarchived token.")
-    log.debug("${access_token} => AT: $accessToken")
-    val toReturn = DeviceCtrl().exist(mac = accessToken!!.identity!!.username)
-    log.debug("toReturn: $toReturn")
-    if (toReturn != null && device == UserType.DEVICE) {
+    private val deviceCtrl = DeviceCtrl()
+    private val userCtrl = UserCtrl()
 
-        log.debug("return: ${toReturn.mac}")
-        return toReturn.mac
+    /**
+     * Deletes the token prefix
+     */
+    fun cleanTokenTag(token : String) : String{
+        var a = ""
+        if(token.contains("Bearer")) a = token.substring(7)
+        if(token.contains("MAC")) a = token.substring(4)
+        if(token.contains("Basic")) a = token.substring(6)
+        return a
     }
-    else {
-        log.debug("check if user")
-        val user = UserCtrl().exist(accessToken.identity!!.username)
-        log.debug("user: $user")
-        if (user == null) return null
-        else return user.username
+
+    /**
+     * Checks if an [access_token] is associated to any user/device.
+     * @param [access_token] is a String
+     * @return null if no user/device is nested for it.
+     */
+    @Throws(OAuth2Exception.InvalidGrant::class)
+    @KtorExperimentalAPI
+    fun checkAccessToken(device : UserType, access_token: String) : String? {
+        val accessToken = tokenStore.accessToken(access_token) ?: throw OAuth2Exception.InvalidGrant("Unarchived token.")
+        log.debug("${access_token} => AT: $accessToken")
+        val toReturn = deviceCtrl.exist(mac = accessToken!!.identity!!.username)
+        log.debug("toReturn: $toReturn")
+        if (toReturn != null && device == UserType.DEVICE) {
+
+            log.debug("return: ${toReturn.mac}")
+            return toReturn.mac
+        }
+        else {
+            log.debug("check if user")
+            val user = userCtrl.exist(accessToken.identity!!.username)
+            log.debug("user: $user")
+            if (user == null) return null
+            else return user.username
+        }
     }
+
+    /**
+     * Updates the credentials nested for a specific user, and return it in a way of [Token].
+     * Each [Token] includes two attributes: [access_token] and [refresh_token], which are [String].
+     * @param [refresh_token] necessary to retrieve the user (or device) info and generate their new tokens.
+     * @return [Token]
+     */
+    @KtorExperimentalAPI
+    fun refreshTokens(refresh_token: String) : Token {
+
+        // check if the refresh token is valid
+        val rt = tokenStore.refreshToken(cleanTokenTag(refresh_token)) ?: throw OAuth2Exception.InvalidGrant("Bad request or invalid credentials")
+
+        // create a new tokens
+        val rt2 = RefreshToken(
+            clientId = rt.clientId,
+            expireTime = rt.expireTime.plusSeconds((60*60*24*10)),
+            identity = rt.identity,
+            scopes = rt.scopes,
+            refreshToken = generateToken()
+        )
+        val at2 = AccessToken(
+            clientId = rt2.clientId,
+            expireTime = rt.expireTime.plusSeconds((60*60*24*2)),
+            identity = rt.identity,
+            refreshToken = rt2,
+            scopes = rt.scopes,
+            tokenType = "Bearer",
+            accessToken = generateToken()
+        )
+
+        // revoke the older refresh token
+        tokenStore.revokeRefreshToken(cleanTokenTag(refresh_token))
+
+        // store the new tokens
+        tokenStore.storeRefreshToken(rt2)
+        tokenStore.storeAccessToken(at2)
+
+        // return the token values
+        return Token("Bearer ${at2.accessToken}", "Bearer ${rt2.refreshToken}")
+    }
+
+
+    /**
+     * Generate [Token] which includes the both [access_token] as a [refresh_token] attributes, nested for a specific user.
+     * Each att is a String which the scheme: 'Bearer XYZ' where 'XYZ' is substituting the real token.
+     */
+    fun newTokens(username: String, clientId: String = "login") : Token{
+
+        // retrieve the identity nested for a specific username
+        val identity = Identity(username= username)
+
+        // create a new tokens
+        val rt = RefreshToken(
+            clientId = clientId,
+            expireTime = Instant.now().plusSeconds((60*60*24*10)),
+            identity = identity,
+            scopes = listOf("all").toSet(),
+            refreshToken = generateToken()
+        )
+        val at = AccessToken(
+            clientId = rt.clientId,
+            expireTime = Instant.now().plusSeconds((60*30)),
+            identity = rt.identity,
+            refreshToken = rt,
+            scopes = listOf("all").toSet(),
+            tokenType = "Bearer",
+            accessToken = generateToken()
+        )
+
+        // store the new tokens
+        tokenStore.storeRefreshToken(rt)
+        tokenStore.storeAccessToken(at)
+
+        // return it
+        return Token("Bearer ${at.accessToken}", "Bearer ${rt.refreshToken}")
+    }
+
+
+
 }
-
-/**
- * Updates the credentials nested for a specific user, and return it in a way of [Token].
- * Each [Token] includes two attributes: [access_token] and [refresh_token], which are [String].
- * @param [refresh_token] necessary to retrieve the user (or device) info and generate their new tokens.
- * @return [Token]
- */
-@KtorExperimentalAPI
-fun refreshTokens(refresh_token: String) : Token {
-
-    // check if the refresh token is valid
-    val rt = tokenStore.refreshToken(refresh_token.cleanTokenTag()) ?: throw OAuth2Exception.InvalidGrant("Bad request or invalid credentials")
-
-    // create a new tokens
-    val rt2 = RefreshToken(
-        clientId = rt.clientId,
-        expireTime = rt.expireTime.plusSeconds((60*60*24*10)),
-        identity = rt.identity,
-        scopes = rt.scopes,
-        refreshToken = generateToken()
-    )
-    val at2 = AccessToken(
-        clientId = rt2.clientId,
-        expireTime = rt.expireTime.plusSeconds((60*60*24*2)),
-        identity = rt.identity,
-        refreshToken = rt2,
-        scopes = rt.scopes,
-        tokenType = "Bearer",
-        accessToken = generateToken()
+    /**
+     * Data class to represent a couple of token.
+     */
+    data class Token(
+        val access_token: String,
+        val refresh_token: String?
     )
 
-    // revoke the older refresh token
-    tokenStore.revokeRefreshToken(refresh_token.cleanTokenTag())
-
-    // store the new tokens
-    tokenStore.storeRefreshToken(rt2)
-    tokenStore.storeAccessToken(at2)
-
-    // return the token values
-    return Token("Bearer ${at2.accessToken}", "Bearer ${rt2.refreshToken}")
-}
-
-
-/**
- * Generate [Token] which includes the both [access_token] as a [refresh_token] attributes, nested for a specific user.
- * Each att is a String which the scheme: 'Bearer XYZ' where 'XYZ' is substituting the real token.
- */
-fun newTokens(username: String, clientId: String = "login") : Token{
-
-    // retrieve the identity nested for a specific username
-    val identity = Identity(username= username)
-
-    // create a new tokens
-    val rt = RefreshToken(
-        clientId = clientId,
-        expireTime = Instant.now().plusSeconds((60*60*24*10)),
-        identity = identity,
-        scopes = listOf("all").toSet(),
-        refreshToken = generateToken()
-    )
-    val at = AccessToken(
-        clientId = rt.clientId,
-        expireTime = Instant.now().plusSeconds((60*30)),
-        identity = rt.identity,
-        refreshToken = rt,
-        scopes = listOf("all").toSet(),
-        tokenType = "Bearer",
-        accessToken = generateToken()
-    )
-
-    // store the new tokens
-    tokenStore.storeRefreshToken(rt)
-    tokenStore.storeAccessToken(at)
-
-    // return it
-    return Token("Bearer ${at.accessToken}", "Bearer ${rt.refreshToken}")
-}
-
-/**
- * Data class to represent a couple of token.
- */
-data class Token(
-    val access_token: String,
-    val refresh_token: String?
-)
-
-// Tools to generate the token
-private val charPool : List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
-private const val TOKEN_LENGTH = 32
-private fun generateToken() = (1..TOKEN_LENGTH)
-        .map { i -> kotlin.random.Random.nextInt(0, charPool.size) }
-        .map(charPool::get)
-        .joinToString("")
-
-
+    // Tools to generate the token
+    private val charPool : List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
+    private val TOKEN_LENGTH = 32
+    private fun generateToken() = (1..TOKEN_LENGTH)
+            .map { i -> kotlin.random.Random.nextInt(0, charPool.size) }
+            .map(charPool::get)
+            .joinToString("")

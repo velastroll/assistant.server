@@ -2,8 +2,7 @@ package com.percomp.assistant.core.dao
 
 import com.percomp.assistant.core.config.backup.scripts.addadmin
 import com.percomp.assistant.core.config.backup.scripts.addprovinces
-import com.percomp.assistant.core.domain.*
-import com.percomp.assistant.core.model.User
+import com.percomp.assistant.core.model.*
 import com.percomp.assistant.core.util.Credentials
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
@@ -25,7 +24,7 @@ object DatabaseFactory {
             create(Users)
             create(Devices)
             create(People)
-            create(Relation)
+            create(Relations)
             create(Registry)
             create(Status)
             create(Provinces)

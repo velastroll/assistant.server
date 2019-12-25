@@ -1,12 +1,13 @@
 package com.percomp.assistant.core
 
-import com.percomp.assistant.core.config.Token
-import com.percomp.assistant.core.config.checkUri
+import app.di.myModule
+import com.percomp.assistant.core.app.config.GrantAccessCtrl
+import com.percomp.assistant.core.app.config.oauth.Token
 import com.percomp.assistant.core.config.oauth.InMemoryIdentityCustom
 import com.percomp.assistant.core.config.oauth.InMemoryTokenStoreCustom
 import com.percomp.assistant.core.controller.retriever.*
 import com.percomp.assistant.core.dao.DatabaseFactory
-import com.percomp.assistant.core.services.*
+import com.percomp.assistant.core.rest.*
 import com.percomp.assistant.core.util.Credentials
 import io.ktor.application.*
 import io.ktor.auth.*
@@ -21,7 +22,6 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.locations.*
 import io.ktor.request.uri
 import io.ktor.response.respond
-import io.ktor.routing.Route
 import io.ktor.routing.param
 import io.ktor.routing.routing
 import io.ktor.server.engine.BaseApplicationResponse
@@ -34,6 +34,7 @@ import nl.myndocs.oauth2.ktor.feature.Oauth2ServerFeature
 import nl.myndocs.oauth2.token.converter.UUIDAccessTokenConverter
 import nl.myndocs.oauth2.token.converter.UUIDRefreshTokenConverter
 import nl.myndocs.oauth2.tokenstore.inmemory.InMemoryTokenStore
+import org.koin.ktor.ext.Koin
 import java.time.Duration
 
 
@@ -75,6 +76,11 @@ fun Application.coreModule() {
 
     // instance of tokenStore for OAuth authentication
     tokenStore = InMemoryTokenStoreCustom.get()
+
+    // Declare Koin
+    install(Koin) {
+        modules(myModule)
+    }
 
     // Install and configure the OAuth2 server //
     install(Oauth2ServerFeature) {
@@ -144,7 +150,7 @@ fun Application.coreModule() {
     IScheduledRetriever.init()
 
     routing {
-        alive()
+        basicAction()
         retrieve()
         user()
         devices()
@@ -180,13 +186,16 @@ fun Application.OAuthLoginApplicationWithDeps(oauthHttpClient: HttpClient) {
 
     /**
      *  INTERCEPT THE PETITION TO CHECK OAUTH
-     **/
+     */
     intercept(ApplicationCallPipeline.Call){
         try {
+            log.error("Enter on intercept")
             // Check necessary grant for this uri
             val uri = call.request.uri
             val accessToken = call.request.headers["Authorization"]
-            if (!checkUri(uri, accessToken)) throw OAuth2Exception.InvalidGrant("Invalid credentials")
+            log.error("try to grant access :")
+            if (!GrantAccessCtrl().checkUri(uri, accessToken)) throw OAuth2Exception.InvalidGrant("Invalid credentials")
+            log.error("tried")
         }
         catch (e: OAuth2Exception.InvalidGrant) {
             try{

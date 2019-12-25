@@ -1,7 +1,6 @@
-package com.percomp.assistant.core.services
+package com.percomp.assistant.core.rest
 
-import com.percomp.assistant.core.config.checkAccessToken
-import com.percomp.assistant.core.config.cleanTokenTag
+import com.percomp.assistant.core.app.config.oauth.TokenCtrl
 import com.percomp.assistant.core.controller.services.LocationCtrl
 import com.percomp.assistant.core.model.UserType
 import io.ktor.application.call
@@ -20,6 +19,9 @@ import java.lang.Exception
 
 fun Route.location(){
 
+    val locationCtrl = LocationCtrl()
+    val auth = TokenCtrl()
+
     route ("worker"){
         /**
          * Creates a new location
@@ -29,14 +31,14 @@ fun Route.location(){
                 log.info("[worker/town] Retrieving token.")
                 // check authorization
                 var accesstoken : String = call.request.headers["Authorization"] ?: throw OAuth2Exception.InvalidGrant("No token")
-                accesstoken = accesstoken.cleanTokenTag()
-                val worker = checkAccessToken(UserType.USER, accesstoken)
+                accesstoken = auth.cleanTokenTag(accesstoken)
+                val worker = auth.checkAccessToken(UserType.USER, accesstoken)
 
                 log.info("[worker/town] User $worker logged.")
                 val town = call.receive<TownRequest>()
 
                 log.info("[worker/town] Town to add = $town")
-                LocationCtrl().add(town.name, town.postcode, town.latitude, town.longitude)
+                locationCtrl.add(town.name, town.postcode, town.latitude, town.longitude)
 
                 log.info("[worker/town] Added.")
                 call.respond(HttpStatusCode.OK, "Town ${town.name} successfully added.")
@@ -73,17 +75,20 @@ fun Route.location(){
             }
         }
 
+        /**
+         * This call retrieves all the locations.
+         */
         get ("towns"){
             try {
                 log.info("[worker/town] Retrieving token.")
                 // check authorization
                 var accesstoken : String = call.request.headers["Authorization"] ?: throw OAuth2Exception.InvalidGrant("No token")
-                accesstoken = accesstoken.cleanTokenTag()
-                val worker = checkAccessToken(UserType.USER, accesstoken)
+                accesstoken = auth.cleanTokenTag(accesstoken)
+                val worker = auth.checkAccessToken(UserType.USER, accesstoken)
 
                 log.info("[worker/town] User $worker logged.")
 
-                val locations = LocationCtrl().retrieveAll()
+                val locations = locationCtrl.retrieveAll()
 
                 log.info("[worker/town] OK.")
                 call.respond(HttpStatusCode.OK, locations)
@@ -113,17 +118,20 @@ fun Route.location(){
             }
         }
 
+        /**
+         * This call retrieves the location with the specified postal code
+         */
         get("towns/{t}"){
             try {
                 log.info("[worker/town] Retrieving token.")
                 // check authorization
                 var accesstoken : String = call.request.headers["Authorization"] ?: throw OAuth2Exception.InvalidGrant("No token")
-                accesstoken = accesstoken.cleanTokenTag()
-                val worker = checkAccessToken(UserType.USER, accesstoken)
+                accesstoken = auth.cleanTokenTag(accesstoken)
+                val worker = auth.checkAccessToken(UserType.USER, accesstoken)
                 val postcode = call.parameters["t"]
                 log.info("[worker/town] User $worker logged.")
 
-                val location = LocationCtrl().retrieve(postcode) ?: throw IllegalArgumentException("Does not exist location with postalcode: $postcode")
+                val location = locationCtrl.retrieve(postcode) ?: throw IllegalArgumentException("Does not exist location with postal code: $postcode")
 
                 log.info("[worker/town] OK.")
                 call.respond(HttpStatusCode.OK, location)

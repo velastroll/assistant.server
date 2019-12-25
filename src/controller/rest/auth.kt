@@ -1,7 +1,7 @@
-package com.percomp.assistant.core.services
+package com.percomp.assistant.core.rest
 
-import com.percomp.assistant.core.config.Token
-import com.percomp.assistant.core.config.refreshTokens
+import com.percomp.assistant.core.app.config.oauth.Token
+import com.percomp.assistant.core.app.config.oauth.TokenCtrl
 import io.ktor.application.call
 import io.ktor.application.log
 import io.ktor.auth.OAuth2Exception
@@ -14,11 +14,13 @@ import io.ktor.routing.post
 import io.ktor.routing.route
 import io.ktor.server.engine.BaseApplicationResponse
 import io.ktor.util.KtorExperimentalAPI
+import org.koin.ktor.ext.inject
 
 @KtorExperimentalAPI
 fun Route.auth() {
 
     val log = application.log
+    val auth : TokenCtrl by inject()
 
     route("auth") {
 
@@ -30,7 +32,7 @@ fun Route.auth() {
                 // get the access token
                 val rt = call.receive<RefreshTokenRequest>()
                 // refresh the tokens
-                val tokens: Token = refreshTokens(rt.refresh_token)
+                val tokens: Token = auth.refreshTokens(rt.refresh_token)
                 // respond the new tokens
                 call.respond(HttpStatusCode.OK, tokens)
             }

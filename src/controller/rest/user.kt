@@ -1,8 +1,7 @@
-package com.percomp.assistant.core.services
+package com.percomp.assistant.core.rest
 
-import com.percomp.assistant.core.config.checkAccessToken
-import com.percomp.assistant.core.config.cleanTokenTag
-import com.percomp.assistant.core.controller.services.UserCtrl
+import com.percomp.assistant.core.app.config.oauth.TokenCtrl
+import com.percomp.assistant.core.controller.domain.UserCtrl
 import com.percomp.assistant.core.model.Person
 import com.percomp.assistant.core.model.UserType
 import io.ktor.application.call
@@ -17,11 +16,16 @@ import io.ktor.routing.route
 import io.ktor.server.engine.BaseApplicationResponse
 import java.lang.Exception
 
-fun Route.user() {
+fun Route.user(){
 
+    val userCtrl = UserCtrl()
+    val auth = TokenCtrl()
 
     route("worker"){
 
+        /**
+         * This call tries to log in a worker.
+         */
         post("login"){
             try {
                 log.warn("/worker/login")
@@ -29,10 +33,10 @@ fun Route.user() {
                 val request = call.receive<CredentialRequest>()
                 log.warn("/worker/login : request = $request")
                 // check account
-                val auth = UserCtrl().check(request)
-                log.warn("/worker/login : auth=$auth")
+                val check = userCtrl.check(request)
+                log.warn("/worker/login : auth=$check")
                 // return credentials
-                call.respond(HttpStatusCode.OK, auth)
+                call.respond(HttpStatusCode.OK, check)
             }
             catch (e: BaseApplicationResponse.ResponseAlreadySentException){
             }
@@ -52,18 +56,22 @@ fun Route.user() {
             }
         }
 
+        /**
+         * This call tries to add a new person to the system.
+         */
         post ("person"){
             try {
                 log.info("[worker/person] Retrieving token.")
                 // check authorization
-                val accesstoken = call.request.headers["Authorization"]!!.cleanTokenTag()
-                val worker = checkAccessToken(UserType.USER, accesstoken)
+                var accesstoken : String = call.request.headers["Authorization"] ?: throw OAuth2Exception.InvalidGrant("No token")
+                accesstoken = auth.cleanTokenTag(accesstoken)
+                val worker = auth.checkAccessToken(UserType.USER, accesstoken)
 
                 log.info("[worker/person] Worker $worker try to add a new person.")
                 val person = call.receive<Person>()
 
                 log.info("[worker/person] Add person: $person")
-                UserCtrl().addPerson(person)
+                userCtrl.addPerson(person)
 
                 log.info("[worker/person] Send response.")
                 call.respond(HttpStatusCode.OK)
@@ -86,14 +94,18 @@ fun Route.user() {
             }
         }
 
+        /**
+         * This method retrieves all the registered people
+         */
         get("people") {
             try {
                 // check authorization
-                val accesstoken = call.request.headers["Authorization"]!!.cleanTokenTag()
-                val worker = checkAccessToken(UserType.USER, accesstoken)
+                var accesstoken : String = call.request.headers["Authorization"] ?: throw OAuth2Exception.InvalidGrant("No token")
+                accesstoken = auth.cleanTokenTag(accesstoken)
+                val worker = auth.checkAccessToken(UserType.USER, accesstoken)
 
                 // retrieve people
-                val people = UserCtrl().retrievePeople()
+                val people =userCtrl.retrievePeople()
 
                 // return it
                 call.respond(HttpStatusCode.OK, people)

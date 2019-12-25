@@ -7,11 +7,14 @@ import com.percomp.assistant.core.util.communication.RaspiAction
 import controller.services.DeviceService
 import controller.services.TaskService
 import org.joda.time.Instant
+import org.koin.core.KoinComponent
+import org.koin.core.inject
 
-class TaskCtrl(
-    private val deviceService: DeviceService,
-    private val taskService: TaskService
-) {
+class TaskCtrl : KoinComponent {
+
+    private val deviceService: DeviceService by inject()
+    private val taskService: TaskService by inject()
+
 
     fun addEvent(name : String?, content: String?){
         // check values

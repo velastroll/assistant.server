@@ -1,10 +1,7 @@
-package com.percomp.assistant.core.services
+package com.percomp.assistant.core.rest
 
-import com.percomp.assistant.core.config.checkAccessToken
-import com.percomp.assistant.core.config.cleanTokenTag
-import com.percomp.assistant.core.controller.services.ConfCtrl
-import com.percomp.assistant.core.controller.services.DeviceCtrl
-import com.percomp.assistant.core.dao.DeviceDAO
+import com.percomp.assistant.core.app.config.oauth.TokenCtrl
+import com.percomp.assistant.core.controller.domain.ConfCtrl
 import com.percomp.assistant.core.model.ConfData
 import com.percomp.assistant.core.model.UserType
 import io.ktor.application.call
@@ -14,9 +11,12 @@ import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.*
 import io.ktor.server.engine.BaseApplicationResponse
+import org.koin.ktor.ext.inject
 
 fun Route.conf(){
 
+    val confCtrl = ConfCtrl()
+    val auth = TokenCtrl()
 
     /* for devices */
     route("device"){
@@ -28,11 +28,11 @@ fun Route.conf(){
             try {
                 // check authrorization
                 log.info("[device/conf] -------")
-                val accesstoken = call.request.headers["Authorization"]!!.cleanTokenTag()
-                val device = checkAccessToken(UserType.DEVICE, accesstoken)!!
+                val accesstoken = auth.cleanTokenTag(call.request.headers["Authorization"]!!)
+                val device = auth.checkAccessToken(UserType.DEVICE, accesstoken)!!
                 // retrieve configuration
                 log.info("[device/conf] retrieving data")
-                val data : ConfData = ConfCtrl().getActual(device)
+                val data : ConfData = confCtrl.getActual(device)
                 // respond it
                 log.info("[device/conf] responding it")
                 call.respond(HttpStatusCode.OK, data)
@@ -57,21 +57,21 @@ fun Route.conf(){
         }
 
         /**
-         * Device informs about the completed task of update app.config
-         * @param timestamp identifier of the app.config data used to update device.
+         * Device informs about the completed task to update the config
+         * @param timestamp identifier of the config data used to update device.
          */
         put("conf/{timestamp}"){
             try {
 
                 log.info("[device/conf/TIMESTAMP] -------")
                 // check authrorization
-                val accesstoken = call.request.headers["Authorization"]!!.cleanTokenTag()
-                val device = checkAccessToken(UserType.DEVICE, accesstoken)
+                val accesstoken = auth.cleanTokenTag(call.request.headers["Authorization"]!!)
+                val device = auth.checkAccessToken(UserType.DEVICE, accesstoken)
                 val timestamp = call.parameters["timestamp"] ?: throw IllegalArgumentException("No timestamp of configuration")
                 log.info("[device/conf/TIMESTAMP] timestamp = $timestamp")
                 log.info("[device/conf/TIMESTAMP] device = $device")
                 // Mark as a done configuration
-                ConfCtrl().updated(mac = device, timestamp = timestamp)
+                confCtrl.updated(mac = device, timestamp = timestamp)
                 log.info("[device/conf/TIMESTAMP] respond")
                 // respond it
                 call.respond(HttpStatusCode.OK, "Configuration has been updated on device.")
@@ -105,13 +105,13 @@ fun Route.conf(){
             try {
                 log.debug("[w/conf] --")
                 // check authorization
-                val accesstoken = call.request.headers["Authorization"]!!.cleanTokenTag()
-                val worker = checkAccessToken(UserType.USER, accesstoken)
+                val accesstoken = auth.cleanTokenTag(call.request.headers["Authorization"]!!)
+                val worker = auth.checkAccessToken(UserType.DEVICE, accesstoken)
                 log.debug("Access for $worker")
                 // retrieve conf
                 val data = call.receive<ConfData>()
                 // save it
-                ConfCtrl().new(data = data)
+                confCtrl.new(data = data)
                 // response
                 call.respond(HttpStatusCode.OK, "Added new configuration")
             }
@@ -128,12 +128,12 @@ fun Route.conf(){
             try {
                 log.debug("[w/conf/{d}] --")
                 // checks authorization
-                val accesstoken = call.request.headers["Authorization"]!!.cleanTokenTag()
-                val worker = checkAccessToken(UserType.USER, accesstoken)
+                val accesstoken = auth.cleanTokenTag(call.request.headers["Authorization"]!!)
+                val worker = auth.checkAccessToken(UserType.DEVICE, accesstoken)
                 val device = call.parameters["device"] ?: throw IllegalArgumentException("No device")
                 log.debug("Access for $worker")
                 // retrieves it
-                val c = ConfCtrl().getConfs(mac = device)
+                val c = confCtrl.getConfs(mac = device)
                 // responds it
                 call.respond(HttpStatusCode.OK, c)
             }

@@ -1,23 +1,25 @@
 package com.percomp.assistant.core.controller.domain
 
-import com.percomp.assistant.core.config.Token
-import com.percomp.assistant.core.config.newTokens
+import com.percomp.assistant.core.app.config.oauth.Token
+import com.percomp.assistant.core.app.config.oauth.TokenCtrl
 import com.percomp.assistant.core.controller.services.LocationService
-import com.percomp.assistant.core.dao.*
 import com.percomp.assistant.core.model.*
-import com.percomp.assistant.core.services.CredentialRequest
-import com.percomp.assistant.core.util.communication.RaspiAction
+import com.percomp.assistant.core.rest.CredentialRequest
 import controller.services.DeviceService
 import controller.services.PeopleService
 import controller.services.TaskService
 import io.ktor.auth.OAuth2Exception
+import org.koin.core.KoinComponent
+import org.koin.core.inject
 
-class DeviceCtrl(
-    private val deviceService : DeviceService,
-    private val taskService: TaskService,
-    private val peopleService: PeopleService,
-    private val locationService: LocationService
-    ) {
+class DeviceCtrl : KoinComponent {
+
+    val deviceService : DeviceService by inject()
+    val taskService: TaskService by inject()
+    val peopleService: PeopleService by inject()
+    val locationService: LocationService by inject()
+    private val authService : TokenCtrl by inject()
+
 
     fun check(auth : CredentialRequest) : Token {
 
@@ -28,7 +30,7 @@ class DeviceCtrl(
 
         if (!deviceService.check(auth.user, auth.password)) throw OAuth2Exception.InvalidGrant("Not valid user or password.")
         // store tokens
-        val tokens = newTokens(username = auth.user)
+        val tokens = authService.newTokens(username = auth.user)
         // return it
         return tokens
     }

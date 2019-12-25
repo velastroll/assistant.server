@@ -5,9 +5,10 @@ import com.percomp.assistant.core.model.User
 interface UserService{
 
     /**
-     * TODO: add specification
+     * Create a new user in the database.
+     * @param signUp is the form to sign up in the system.
      */
-    fun newUser()
+    fun newUser(signUp: User, password: String?)
 
     /**
      * This method check if the combination of user and password is correct.
@@ -18,7 +19,7 @@ interface UserService{
     fun check(id : String, password : String) : User?
 
     /**
-     * This emthod retrieves a specific user by their username.
+     * This method retrieves a specific user by their username.
      * @param id is the user identifier, which is the same than their username.
      * @return user information or null.
      */

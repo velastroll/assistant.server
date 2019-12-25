@@ -1,16 +1,16 @@
 package com.percomp.assistant.core.controller.services
 
-import com.percomp.assistant.core.dao.DatabaseFactory.dbQuery
-import com.percomp.assistant.core.dao.LocationDAO
-import com.percomp.assistant.core.dao.UserDAO
-import com.percomp.assistant.core.domain.Locations
 import com.percomp.assistant.core.model.Person
-import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.selectAll
+import com.percomp.assistant.core.model.Position
+import controller.services.PeopleService
 
-class LocationCtrl {
+class LocationCtrl (
+    private val locationService : LocationService,
+    private val peopleService: PeopleService
 
-    suspend fun add(name : String, postCode : Int, lat: Double, lon: Double){
+){
+
+    fun add(name : String, postCode : Int, lat: Double, lon: Double){
         if (name.length < 3) throw IllegalArgumentException("Name is too short.")
         if (postCode < 1000) throw IllegalArgumentException("Invalid post code.")
         if (postCode > 52007) throw IllegalArgumentException("Invalid post code.")
@@ -19,32 +19,30 @@ class LocationCtrl {
         if (lon > 180) throw IllegalArgumentException("Invalid longitude: $lon.")
         if (lon < -180) throw IllegalArgumentException("Invalid longitude: $lon.")
 
-        val province = postCode / 1000
-
-        LocationDAO().post(name, postCode, province, lat, lon)
+        locationService.newLocation(name, postCode, Position(lat, lon))
     }
 
-    suspend fun retrieveAll(): List<Province> {
+    fun retrieveAll(): List<Province> {
 
         // retrieve provinces
-        val provinces = LocationDAO().getProvinces()
+        val provinces = locationService.getProvinces()
 
         // retrieve locations for each province
         for (p : Province in provinces){
-            val locations = LocationDAO().get(code = p.code)
+            val locations = locationService.getLocations(provinceCode = p.code)
             // retrieve people for each location
             for (l : Location in locations){
-                l.people = UserCtrl().retrieve(postalcode = l.postcode)
+                l.people = peopleService.getByPostalCode(postalCode = l.postcode) as ArrayList<Person>
             }
-            p.locations = locations
+            p.locations = locations as ArrayList<Location>
         }
 
         // return it
         return provinces
     }
 
-    suspend fun retrieve(postcode: String?): Location?{
-        return LocationDAO().getByPostalCode(postcode = postcode!!.toInt())
+    fun retrieve(postcode: String?): Location?{
+        return locationService.getLocationByPostalCode(postalCode = postcode!!.toInt())
     }
 }
 

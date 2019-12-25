@@ -1,26 +1,32 @@
-package com.percomp.assistant.core.controller.services
+package com.percomp.assistant.core.controller.domain
 
-import com.percomp.assistant.core.dao.*
+import com.percomp.assistant.core.controller.services.Location
+import com.percomp.assistant.core.controller.services.LocationService
 import com.percomp.assistant.core.model.*
+import controller.services.ConfService
+import controller.services.DeviceService
 import io.ktor.auth.OAuth2Exception
-import io.ktor.html.each
 import java.time.Instant
 
-class ConfCtrl {
+class ConfCtrl(
+    private val deviceService: DeviceService,
+    private val confService : ConfService,
+    private val locationService: LocationService
+) {
 
     /**
      * Retrieve the pending or actual configuration of the device
      */
-    suspend fun get(mac : String?, pending: Boolean = true) : ConfData? {
+    fun get(mac : String?, pending: Boolean = true) : ConfData? {
 
         // check if user exist on db
         if (mac.isNullOrEmpty()) throw OAuth2Exception.InvalidGrant("Not valid device")
 
         // check it on db
-        if (DeviceDAO().checkExists(mac) == null) throw IllegalStateException("Device does not exist.")
+        if (deviceService.checkExists(mac) == null) throw IllegalStateException("Device does not exist.")
 
         // retrieve pending or actual app.config
-        val conf = ConfDAO().get(mac, pending = true) ?: ConfDAO().get(mac, pending = false)
+        val conf = confService.get(mac, pending = true) ?: confService.get(mac, pending = false)
 
         // return it
         return conf
@@ -29,26 +35,26 @@ class ConfCtrl {
     /**
      * Sets a specific configuration as done.
      */
-    suspend fun complete(mac: String?, timestamp : String?) {
+    fun complete(mac: String?, timestamp : String?) {
         // check if user exist on db
         if (mac.isNullOrEmpty()) throw OAuth2Exception.InvalidGrant("Not valid device")
         if (timestamp.isNullOrEmpty()) throw OAuth2Exception.InvalidGrant("Not valid timestamp")
 
         // check it on db
-        DeviceDAO().checkExists(mac) ?: throw IllegalStateException("Device does not exist.")
+        deviceService.checkExists(mac) ?: throw IllegalStateException("Device does not exist.")
 
         // mark conf as done
-        ConfDAO().done(mac, timestamp)
+        confService.done(mac, timestamp)
     }
 
     /**
      * Creates a new configuration.
      */
-    suspend fun create(configuration: ConfData) {
+     fun create(configuration: ConfData) {
 
         // checks values
         if (configuration.device.isNullOrEmpty()) throw IllegalArgumentException("Device is not specified.")
-        if (DeviceDAO().checkExists(configuration.device!!) == null) throw IllegalArgumentException("Device ${configuration.device} does not exist.")
+        if (deviceService.checkExists(configuration.device!!) == null) throw IllegalArgumentException("Device ${configuration.device} does not exist.")
         if (configuration.body == null) throw IllegalArgumentException("Configuration has not body to configure.")
         if (configuration.body!!.sleep_sec < 10) throw IllegalArgumentException("Sleep time ${configuration.body!!.sleep_sec} should be greater or equal than 10 seconds.")
 
@@ -57,7 +63,7 @@ class ConfCtrl {
         configuration.timestamp = Instant.now().toString()
 
         // creates app.config
-        ConfDAO().post(data = configuration)
+        confService.post(data = configuration)
     }
 
 
@@ -70,21 +76,21 @@ class ConfCtrl {
      *  - Actual device configuration
      *  - Pending device configuration
      */
-    suspend fun getConfs(mac: String) : ConfDatas {
+    fun getConfs(mac: String) : ConfDatas {
 
         val confs = ConfDatas()
 
         // retrieves global configuration
-        confs.global = ConfDAO().get("GLOBAL", pending = false)
+        confs.global = confService.get("GLOBAL", pending = false)
         // retrieves it location data configuration
-        val relation : Relation? = RelationDAO().get(mac)
-        if (relation != null) confs.location = ConfDAO().get(relation.user!!.postcode.toString(), pending = false)
+        val relation : Relation? = deviceService.getLastAssignment(mac)
+        if (relation != null) confs.location = confService.get(relation.user!!.postcode.toString(), pending = false)
 
         // retrieves device conf
-        confs.deviceConf = ConfDAO().get(mac, false)
+        confs.deviceConf = confService.get(mac, false)
 
         // retrieve pending conf
-        confs.pendingConf = ConfDAO().get(mac, true)
+        confs.pendingConf = confService.get(mac, true)
 
         return confs
     }
@@ -92,7 +98,7 @@ class ConfCtrl {
     /**
      * Returns the current configuration.
      */
-    suspend fun getActual(mac: String) : ConfData{
+     fun getActual(mac: String) : ConfData{
         val conf = getConfs(mac = mac)
         val actual : ArrayList<ConfData> = ArrayList()
         if (conf.global != null) actual.add(conf.global!!)
@@ -116,7 +122,7 @@ class ConfCtrl {
      * Creates a new configuration.
      * It could be either GLOBAL as for a postal code, or for a specific device.
      */
-    suspend fun new(data: ConfData){
+    fun new(data: ConfData){
         if (data.device.isNullOrEmpty())
             throw IllegalArgumentException("Device is not specified.")
         if (data.body == null)
@@ -128,11 +134,11 @@ class ConfCtrl {
         when{
             data.device == "GLOBAL" -> {
                 // delete old global∫
-                ConfDAO().delete("GLOBAL", pending = false)
+                confService.delete("GLOBAL", pending = false)
                 // Configure irrelevant values
                 data.pending = false
                 // create new global conf
-                ConfDAO().post(data)
+                confService.post(data)
             }
             data.device!!.length < 6 -> {
                 // check if it0s a valid postcode
@@ -142,20 +148,21 @@ class ConfCtrl {
                 } catch (e : Exception) {
                     throw IllegalArgumentException("Not valid postcode ${data.device}")
                 }
-                val location : Location = LocationDAO().getByPostalCode(postcode = pc) ?: throw IllegalArgumentException("Does not exist location with postal code $pc")
+                val location : Location = locationService.getLocationByPostalCode(postalCode = pc)
+                    ?: throw IllegalArgumentException("Does not exist location with postal code $pc")
                 // create new global conf
                 data.device = "$pc"
                 data.pending = false
-                ConfDAO().post(data)
+                confService.post(data)
             }
             data.device!!.length > 16 -> {
                 // device identifier
-                if (DeviceDAO().checkExists(data.device!!) == null) throw IllegalArgumentException("Device ${data.device} does not exist.")
+                if (deviceService.checkExists(data.device!!) == null) throw IllegalArgumentException("Device ${data.device} does not exist.")
                 // delete pending
-                ConfDAO().delete(data.device!!, pending = true)
+                confService.delete(data.device!!, pending = true)
                 // creates a new pending
                 data.pending = true
-                ConfDAO().post(data)
+                confService.post(data)
             }
 
         }
@@ -166,12 +173,12 @@ class ConfCtrl {
     /**
      * Device has been updated, so this updates the current configuration.
      */
-    suspend fun updated(timestamp: String?, mac: String?){
+     fun updated(timestamp: String?, mac: String?){
 
         // checks values
         if (mac.isNullOrEmpty()) throw OAuth2Exception.InvalidGrant("Not valid device: $mac")
         if (timestamp.isNullOrEmpty()) throw OAuth2Exception.InvalidGrant("Not valid timestamp: $timestamp")
-        DeviceDAO().checkExists(mac) ?: throw IllegalStateException("Device $mac does not exist.")
+        deviceService.checkExists(mac) ?: throw IllegalStateException("Device $mac does not exist.")
 
         // retrieve data
         val confs = getConfs(mac)
@@ -181,28 +188,28 @@ class ConfCtrl {
         if (confs.global != null && confs.global!!.timestamp == timestamp){
             // delete all device conf
             try {
-            ConfDAO().delete(mac, true)
-            ConfDAO().delete(mac, false)
+                confService.delete(mac, true)
+                confService.delete(mac, false)
             }catch (e:Exception){println(1)}
             // insert
             actual.body = confs.global!!.body
             // insert new configuration
-            ConfDAO().post(actual)
+            confService.post(actual)
         } else if (confs.location != null && confs.location!!.timestamp == timestamp){
             // delete all device conf
             try{
-            ConfDAO().delete(mac, true)
-            ConfDAO().delete(mac, false)
+                confService.delete(mac, true)
+                confService.delete(mac, false)
             }catch (e:Exception){println(2)}
             // insert
             actual.body = confs.location!!.body
             // insert new configuration
-            ConfDAO().post(actual)
+            confService.post(actual)
         } else if (confs.pendingConf != null && confs.pendingConf!!.timestamp == timestamp){
             // delete all device conf
             try{
-            ConfDAO().delete(mac, false)
-            ConfDAO().done(mac, timestamp)
+                confService.delete(mac, false)
+                confService.done(mac, timestamp)
             }catch (e:Exception){println(3)}
         } else {
             throw IllegalArgumentException("Invalid timestamp $timestamp for device $mac")

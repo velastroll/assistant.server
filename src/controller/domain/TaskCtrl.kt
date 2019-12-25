@@ -1,86 +1,90 @@
-package com.percomp.assistant.core.controller.services
+package com.percomp.assistant.core.controller.domain
 
-import com.percomp.assistant.core.dao.*
 import com.percomp.assistant.core.model.Event
 import com.percomp.assistant.core.model.Task
 import com.percomp.assistant.core.util.Constants
 import com.percomp.assistant.core.util.communication.RaspiAction
+import controller.services.DeviceService
+import controller.services.TaskService
 import org.joda.time.Instant
 
-class TaskCtrl {
+class TaskCtrl(
+    private val deviceService: DeviceService,
+    private val taskService: TaskService
+) {
 
-    suspend fun addEvent(name : String?, content: String?){
+    fun addEvent(name : String?, content: String?){
         // check values
         if (name.isNullOrEmpty()) throw IllegalArgumentException("Name cannot be empty.")
         if (name.length >= Constants.NAME) throw IllegalArgumentException("Wrong name: Length < ${Constants.NAME}.")
         if (content.isNullOrEmpty()) throw IllegalArgumentException("Content cannot be empty.")
         if (content.length >= Constants.EVENT_CONTENT) throw IllegalArgumentException("Wrong content: Length < ${Constants.EVENT_CONTENT}.")
 
-        val state = EventDAO().post(name, content)
+        val state = taskService.newEventType(name, content)
         if (!state) throw IllegalStateException("Event cannot be added: The name is already in use.")
     }
 
-    suspend fun addTask(task : Task, by : String) {
+    fun addTask(task : Task, by : String) {
 
         // check values
         if (task.device.isNullOrEmpty()) throw IllegalArgumentException("Device cannot be empty.")
         if (task.event.isNullOrEmpty()) throw IllegalArgumentException("Task must be a type of event.")
-        EventDAO().get(task.event!!) ?: throw IllegalArgumentException("Event '${task.event}' does not exist.")
+        taskService.getEventType(task.event!!) ?: throw IllegalArgumentException("Event '${task.event}' does not exist.")
 
         // send tasks
         if(task.device == "GLOBAL"){
             // global petition, send petition for all devices
-            val ds = DeviceDAO().getAll()
+            val ds = deviceService.getAll()
             for (d in ds){
                 task.device = d.mac
                 task.at = Instant.now().toString()
                 task.by = by
-                TaskDAO().post(task = task)
+                taskService.newTask(task = task)
             }
         } else if (task.device!!.length < 10){
             // location: send petition for all location devices
-            val ds = DeviceDAO().getAll().filter { d -> d.relation != null && d.relation!!.user!!.postcode.toString() == task.device }
+            val ds = deviceService.getAll().filter { d -> d.relation != null && d.relation!!.user!!.postcode.toString() == task.device }
             for (d in ds){
                 task.device = d.mac
                 task.at = Instant.now().toString()
                 task.by = by
-                TaskDAO().post(task = task)
+                taskService.newTask(task = task)
             }
 
         } else {
             // device
-            if (DeviceCtrl().exist(task.device!!) == null) throw IllegalArgumentException("Device does not exist.")
+            if (deviceService.checkExists(task.device!!) == null) throw IllegalArgumentException("Device does not exist.")
             task.at = Instant.now().toString()
             task.by = by
-            TaskDAO().post(task = task)
+            taskService.newTask(task = task)
         }
     }
 
-    suspend fun newStatus(device: String, status: RaspiAction, content: String? = null) : List<Task>{
+    fun newStatus(device: String, status: RaspiAction, content: String? = null) : List<Task>{
 
         // save status
-        StatusDAO().post(device, status, content)
+        deviceService.newStatus(device, status, content)
 
         // check if it has pending actions
-        return TaskDAO().get(device, from = Instant.now().toString())
+        return taskService.getPendingTaskForDevice(device)
 
     }
 
-    suspend fun getAll(device: String?, from : String?, to : String) : List<Task> {
+    fun getAll(device: String?, from : String?, to : String) : List<Task> {
 
         if (device.isNullOrEmpty()) throw IllegalArgumentException("Device cannot be empty")
         if (from.isNullOrEmpty()) throw IllegalArgumentException("")
-        return TaskDAO().get(device, from, to)
+        return taskService.getTask(device, from, to)
     }
 
-    suspend fun done(device: String, task: String?) {
+    fun done(device: String, task: String?) {
 
         if (task.isNullOrEmpty()) throw IllegalArgumentException("Task cannot be null.")
         val date = Instant.now().toString()
-        TaskDAO().put(device, task, date)
+        taskService.endTask(device, task, date)
     }
 
-    suspend fun getEvents(): List<Event> {
-        return EventDAO().getAll()
+    fun getEvents(): List<Event> {
+        return taskService.getAllEvents()
     }
 }

@@ -8,6 +8,8 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import model.Intents
+import model.Slots
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils.create
 import org.jetbrains.exposed.sql.select
@@ -32,6 +34,8 @@ object DatabaseFactory {
             create(Events)
             create(Tasks)
             create(Confs)
+            create(Intents)
+            create(Slots)
 
             // insert admin account
             val check = (Users).select{

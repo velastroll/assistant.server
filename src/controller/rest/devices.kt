@@ -6,11 +6,14 @@ import com.percomp.assistant.core.model.UserType
 import io.ktor.application.call
 import io.ktor.auth.OAuth2Exception
 import io.ktor.http.HttpStatusCode
+import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.get
+import io.ktor.routing.post
 import io.ktor.routing.route
 import io.ktor.server.engine.BaseApplicationResponse
+import model.IntentDone
 import org.koin.ktor.ext.inject
 
 fun Route.devices(){
@@ -20,6 +23,24 @@ fun Route.devices(){
 
     /* for devices */
     route("devices"){
+
+        /*
+            This call is for devices to inform about a done intent.
+         */
+        post("intent"){
+            // get the device identification
+            log.info("[devices/intent] ---- New")
+            val accesstoken = auth.cleanTokenTag(call.request.headers["Authorization"]!!)
+            val device = auth.checkAccessToken(UserType.USER, accesstoken)
+            // get the intent list
+            log.info("[devices/intent] Retrieving intents")
+            val intent : IntentDone = call.receive()
+            log.info("[devices/intent] Processing it")
+            deviceCtrl.newIntentAction(device = device, intent = intent)
+            log.info("[devices/intent] Ok.")
+            call.respond(HttpStatusCode.OK)
+            return@post
+        }
 
     }
 

@@ -14,4 +14,9 @@ object Constants {
     val NORMALCHARPOOL: List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
     val HEX : List<Char> = ('a'..'f') + ('A'..'F') + ('0'..'9')
     val TOWN: Int = 64
+    val DATETIME: Int = 28
+    val INTENT_NAME: Int = 32
+    val SLOT_NAME: Int = 32
+    val SLOT_ENTITY: Int = 32
+    val SLOT_RAW_VALUE: Int = 32
 }

@@ -27,7 +27,9 @@ fun Route.relation(){
 
     route("worker"){
 
-        /** add relation for real person **/
+        /**
+         * Add relation for real person
+         **/
         post("relation"){
             try {
                 // check authrorization
@@ -59,7 +61,9 @@ fun Route.relation(){
             }
         }
 
-        /** finish relation for real person **/
+        /**
+         * finish relation for real person
+         * **/
         delete("relation/{device}"){
             try {
                 var accesstoken : String = call.request.headers["Authorization"] ?: throw OAuth2Exception.InvalidGrant("No token")

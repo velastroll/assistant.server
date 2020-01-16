@@ -5,6 +5,7 @@ import com.percomp.assistant.core.app.config.oauth.TokenCtrl
 import com.percomp.assistant.core.controller.services.LocationService
 import com.percomp.assistant.core.model.*
 import com.percomp.assistant.core.rest.CredentialRequest
+import com.percomp.assistant.core.rest.IntervalOfDates
 import controller.services.DeviceService
 import controller.services.IntentsService
 import controller.services.PeopleService
@@ -124,5 +125,9 @@ class DeviceCtrl : KoinComponent {
         )
 
         intentsService.addIntentAction(data = toStore)
+    }
+
+    fun retrieveIntents(device: String, interval: IntervalOfDates): List<Intent> {
+        val d =
     }
 }

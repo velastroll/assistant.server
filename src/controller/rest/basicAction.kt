@@ -21,7 +21,9 @@ import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
 import io.ktor.server.engine.BaseApplicationResponse
+import io.ktor.util.KtorExperimentalAPI
 
+@KtorExperimentalAPI
 fun Route.basicAction(){
 
     val deviceCtrl = DeviceCtrl()
@@ -37,9 +39,10 @@ fun Route.basicAction(){
             try {
                 log.warn("[/device/login] ------------------------- ")
                 // retrieve data
-                val postParameters: Parameters = call.receiveParameters()
+                val postParameters : Parameters = call.receiveParameters()
                 log.warn("/device/login : request = $postParameters")
                 val request = CredentialRequest(user = postParameters["user"]!!, password = postParameters["password"]!!)
+                //val request = postParameters
                 // check account
                 val auth = deviceCtrl.check(request)
                 log.warn("/device/login : auth=$auth")
@@ -63,7 +66,6 @@ fun Route.basicAction(){
                 }
             }
         }
-
 
         /**
          * Device says that it's alive, so reply it their available task.
@@ -322,4 +324,9 @@ data class TaskRequest (
     var device : String? = null,
     var from : String = "2018-12-12T123:59:59.999Z",
     var to : String = "2999-12-12T123:59:59.999Z"
+)
+
+data class LoginRequest (
+    var user : String,
+    var password : String
 )

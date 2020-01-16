@@ -36,9 +36,9 @@ data class Intent (
 /* Database classes */
 
 object Intents : Table() {
-    var id = varchar("id", Constants.IDENTIFIER).primaryKey(0)
-    var datetime = varchar("datetime", Constants.DATETIME).primaryKey(1)
-    var device = reference( "device", Devices.id).primaryKey(2)
+    var id = varchar("id", Constants.IDENTIFIER).primaryKey()
+    var datetime = varchar("datetime", Constants.DATETIME)
+    var device = reference( "device", Devices.id)
     var intentName = varchar("intentName", Constants.INTENT_NAME)
     var confidence = double("confidence")
 }

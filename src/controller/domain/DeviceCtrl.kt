@@ -6,6 +6,7 @@ import com.percomp.assistant.core.controller.services.LocationService
 import com.percomp.assistant.core.model.*
 import com.percomp.assistant.core.rest.CredentialRequest
 import com.percomp.assistant.core.rest.IntervalOfDates
+import com.percomp.assistant.core.util.Constants
 import controller.services.DeviceService
 import controller.services.IntentsService
 import controller.services.PeopleService
@@ -127,7 +128,22 @@ class DeviceCtrl : KoinComponent {
         intentsService.addIntentAction(data = toStore)
     }
 
+    /**
+     * This method checks if device exists and checks the interval of dates to retrieve the list of intents.
+     * @param device the device mac identifier
+     *
+     */
     fun retrieveIntents(device: String, interval: IntervalOfDates): List<Intent> {
-        val d =
+        // checks device
+        var d: Device? = null
+        deviceService.getAll().forEach { if (it.mac == device) d = it }
+        if (d == null) throw IllegalArgumentException("Device $device does not exist.")
+        val f = interval.from ?: Constants.DATE_PAST
+        val t = interval.to ?: Constants.DATE_FUTURE
+        if (Instant.parse(f).isAfter(Instant.parse(t))) throw IllegalArgumentException("FROM [$f] is after TO [$t]")
+        // retrieves it
+        val i = intentsService.getIntents(d!!.mac, f, t)
+        // returns it
+        return i
     }
 }

@@ -19,4 +19,6 @@ object Constants {
     val SLOT_NAME: Int = 32
     val SLOT_ENTITY: Int = 32
     val SLOT_RAW_VALUE: Int = 32
+    val DATE_PAST = "2018"
+    val DATE_FUTURE = "2099"
 }

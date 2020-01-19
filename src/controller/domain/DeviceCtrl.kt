@@ -5,12 +5,18 @@ import com.percomp.assistant.core.app.config.oauth.TokenCtrl
 import com.percomp.assistant.core.controller.services.LocationService
 import com.percomp.assistant.core.model.*
 import com.percomp.assistant.core.rest.CredentialRequest
+import com.percomp.assistant.core.rest.IntervalOfDates
+import com.percomp.assistant.core.util.Constants
 import controller.services.DeviceService
+import controller.services.IntentsService
 import controller.services.PeopleService
 import controller.services.TaskService
 import io.ktor.auth.OAuth2Exception
+import model.Intent
+import model.IntentDone
 import org.koin.core.KoinComponent
 import org.koin.core.inject
+import java.time.Instant
 
 class DeviceCtrl : KoinComponent {
 
@@ -19,6 +25,7 @@ class DeviceCtrl : KoinComponent {
     val peopleService: PeopleService by inject()
     val locationService: LocationService by inject()
     private val authService : TokenCtrl by inject()
+    private val intentsService : IntentsService by inject()
 
 
     fun check(auth : CredentialRequest) : Token {
@@ -104,5 +111,47 @@ class DeviceCtrl : KoinComponent {
             r.info = l.name
         }
         return r
+    }
+
+    /**
+     * This method checks the intent done, and prepares it to be saved.
+     */
+    fun newIntentAction(device: String?, intent: IntentDone) {
+        // parse intent values
+        val toStore = Intent(
+            datetime = intent.datetime ?: Instant.now().toString(),
+            data = intent.intent,
+            slots = intent.slots,
+            device = device ?: throw IllegalArgumentException("Device has not been specified.")
+        )
+
+        intentsService.addIntentAction(data = toStore)
+    }
+
+    /**
+     * This method checks if device exists and checks the interval of dates to retrieve the list of intents.
+     * @param device the device mac identifier
+     *
+     */
+    fun retrieveIntents(device: String, interval: IntervalOfDates): List<Intent> {
+        // checks device
+        var d: Device? = null
+        deviceService.getAll().forEach { if (it.mac == device) d = it }
+        if (d == null) throw IllegalArgumentException("Device $device does not exist.")
+        var f = interval.from ?: Constants.DATE_PAST
+        var t = interval.to ?: Constants.DATE_FUTURE
+        if (Instant.parse(f).isAfter(Instant.parse(t))) throw IllegalArgumentException("FROM [$f] is after TO [$t]")
+        // check if the device has any relation
+        val u = deviceService.getLastAssignment(device)
+        if (u != null){
+            // the device has an assignment, check min and max dates of interval
+            if (Instant.parse(u.from).isAfter(Instant.parse(f))) f = u.from
+            if (Instant.parse(u.from).isAfter(Instant.parse(t))) t = u.from
+        }
+
+        // retrieves it
+        val i = intentsService.getIntents(d!!.mac, f, t)
+        // returns it
+        return i
     }
 }

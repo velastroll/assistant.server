@@ -27,7 +27,8 @@ fun Route.retrieve(){
 
     // need to check if any function is ready to send to the device
     route("towns/{town}"){
-        post(){
+
+        post{
             try {
                 // TODO: extract device from Auth
                 var accesstoken : String = call.request.headers["Authorization"] ?: throw OAuth2Exception.InvalidGrant("No token")

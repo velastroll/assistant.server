@@ -10,6 +10,7 @@ import com.percomp.assistant.core.services.TaskRepo
 import com.percomp.assistant.core.services.UserRepo
 import controller.services.*
 import org.koin.dsl.module
+import service.IntentRepo
 
 /**
  * This module has got the Koin configuration with the declarations of the needed instances.
@@ -25,5 +26,6 @@ val myModule = module {
     single { PeopleRepo() as PeopleService }
     single { TaskRepo() as TaskService }
     single { UserRepo() as UserService }
+    single { IntentRepo() as IntentsService }
     single { TokenCtrl() }
 }

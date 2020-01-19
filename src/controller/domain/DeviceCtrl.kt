@@ -138,9 +138,17 @@ class DeviceCtrl : KoinComponent {
         var d: Device? = null
         deviceService.getAll().forEach { if (it.mac == device) d = it }
         if (d == null) throw IllegalArgumentException("Device $device does not exist.")
-        val f = interval.from ?: Constants.DATE_PAST
-        val t = interval.to ?: Constants.DATE_FUTURE
+        var f = interval.from ?: Constants.DATE_PAST
+        var t = interval.to ?: Constants.DATE_FUTURE
         if (Instant.parse(f).isAfter(Instant.parse(t))) throw IllegalArgumentException("FROM [$f] is after TO [$t]")
+        // check if the device has any relation
+        val u = deviceService.getLastAssignment(device)
+        if (u != null){
+            // the device has an assignment, check min and max dates of interval
+            if (Instant.parse(u.from).isAfter(Instant.parse(f))) f = u.from
+            if (Instant.parse(u.from).isAfter(Instant.parse(t))) t = u.from
+        }
+
         // retrieves it
         val i = intentsService.getIntents(d!!.mac, f, t)
         // returns it

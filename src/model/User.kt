@@ -24,6 +24,12 @@ data class Person(
     var relation : Relation? = null
 )
 
+
+data class CredentialRequest(
+    val user: String,
+    val password: String
+)
+
 /** database tables */
 
 object Users : Table() {

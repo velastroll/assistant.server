@@ -16,7 +16,6 @@ interface DeviceService {
      */
     fun check (mac : String, password : String) : Boolean
 
-
     /**
      * This method retrieves device info if the device exists.
      * @param mac is the device identifier.

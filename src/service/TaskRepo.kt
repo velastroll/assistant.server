@@ -6,8 +6,6 @@ import com.percomp.assistant.core.util.Constants
 import controller.services.TaskService
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.isNotNull
 
 class TaskRepo : TaskService {
 
@@ -29,7 +27,6 @@ class TaskRepo : TaskService {
             }
         }
     }
-
 
     /**
      * This method returns the info about a specific event.
@@ -208,7 +205,5 @@ class TaskRepo : TaskService {
         .map { i -> kotlin.random.Random.nextInt(0, charPool.size) }
         .map(charPool::get)
         .joinToString("")
-
-
 
 }

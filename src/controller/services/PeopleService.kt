@@ -1,6 +1,7 @@
 package controller.services
 
 import com.percomp.assistant.core.model.Person
+import com.percomp.assistant.core.model.Relation
 
 interface PeopleService {
 
@@ -32,4 +33,10 @@ interface PeopleService {
      */
     fun getByPostalCode(postalCode: Int) : List<Person>
 
+    /**
+     * This method retrieves the current relation of an user.
+     * @param nif is the user national identifier.
+     * @return current [Relation] or null.
+     */
+    fun getRelation(nif: String): Relation?
 }

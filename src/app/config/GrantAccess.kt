@@ -1,13 +1,15 @@
 package  com.percomp.assistant.core.app.config
 
-import com.percomp.assistant.core.app.config.oauth.TokenCtrl
 import com.percomp.assistant.core.model.UserType
+import controller.services.AuthService
 import io.ktor.util.KtorExperimentalAPI
+import org.koin.core.KoinComponent
+import org.koin.core.inject
 
 
-class GrantAccessCtrl {
+class GrantAccessCtrl : KoinComponent{
 
-    private val auth = TokenCtrl()
+    private val auth: AuthService by inject()
 
     /**
      * Grant access in function of authentication and uri to access.

@@ -4,6 +4,12 @@ import com.percomp.assistant.core.util.Constants
 import com.percomp.assistant.core.util.communication.RaspiAction
 import org.jetbrains.exposed.sql.Table
 
+
+data class IntervalOfDates(
+    var from : String?,
+    var to : String?
+)
+
 data class Device(
     var mac : String
 ){
@@ -37,7 +43,7 @@ data class Device4W(
     var device: String? = null,
     var last_status: List<StateBasic>? = null,
     var last_events: List<Event4W>? = null,
-    var last_intents: List<Intent4W>? = null,
+    var last_intent: Intent4W? = null,
     var relation: Relation? = null,
     var pending: List<Task>? = null
 )

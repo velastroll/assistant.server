@@ -11,6 +11,7 @@ import org.jetbrains.exposed.sql.select
 import java.security.MessageDigest
 
 class UserRepo : UserService {
+
     /**
      * This method check if the combination of user and password is correct.
      * @param id is the user identifier, which is the same than the username.

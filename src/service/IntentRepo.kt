@@ -1,6 +1,7 @@
 package service
 
 import com.percomp.assistant.core.dao.DatabaseFactory.dbQuery
+import com.percomp.assistant.core.model.Intent4W
 import com.percomp.assistant.core.util.Constants
 import controller.services.IntentsService
 import kotlinx.coroutines.runBlocking
@@ -10,6 +11,27 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 
 class IntentRepo : IntentsService {
+
+    /**
+     * Retrieve the last intent of a specific device.
+     * @param mac is the device identifier
+     */
+    override fun getLastIntent(mac: String): Intent4W? {
+        return runBlocking {
+            return@runBlocking dbQuery {
+                Intents
+                    .select({
+                        Intents.device eq mac})
+                    .orderBy(Intents.datetime, isAsc = false) // ordered by Intents
+                    .map {
+                        Intent4W(
+                            intent = it[Intents.intentName],
+                            timestamp = it[Intents.datetime]
+                        )
+                    }.firstOrNull()
+            }
+        }
+    }
 
     /**
      * This method retrieves a list with all the intents of a specific device registered on an interval of dates, and

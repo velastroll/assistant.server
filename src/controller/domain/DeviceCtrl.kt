@@ -1,61 +1,40 @@
 package com.percomp.assistant.core.controller.domain
 
-import com.percomp.assistant.core.app.config.oauth.Token
-import com.percomp.assistant.core.app.config.oauth.TokenCtrl
 import com.percomp.assistant.core.controller.services.LocationService
 import com.percomp.assistant.core.model.*
-import com.percomp.assistant.core.rest.CredentialRequest
-import com.percomp.assistant.core.rest.IntervalOfDates
 import com.percomp.assistant.core.util.Constants
-import controller.services.DeviceService
-import controller.services.IntentsService
-import controller.services.PeopleService
-import controller.services.TaskService
+import controller.services.*
 import io.ktor.auth.OAuth2Exception
 import model.Intent
 import model.IntentDone
-import org.koin.core.KoinComponent
-import org.koin.core.inject
+import model.Token
 import java.time.Instant
 
-class DeviceCtrl : KoinComponent {
-
-    val deviceService : DeviceService by inject()
-    val taskService: TaskService by inject()
-    val peopleService: PeopleService by inject()
-    val locationService: LocationService by inject()
-    private val authService : TokenCtrl by inject()
-    private val intentsService : IntentsService by inject()
-
+class DeviceCtrl(
+    private val deviceService : DeviceService,
+    private val taskService: TaskService,
+    private val peopleService: PeopleService,
+    private val locationService: LocationService,
+    private val authService : AuthService,
+    private val intentsService : IntentsService
+){
 
     fun check(auth : CredentialRequest) : Token {
 
         // check if user exist on db
-        if (auth.user.isNullOrEmpty()) throw OAuth2Exception.InvalidGrant("Not valid user")
-        if (auth.password.isNullOrEmpty()) throw OAuth2Exception.InvalidGrant("Not valid password")
+        if (auth.user.isEmpty()) throw OAuth2Exception.InvalidGrant("Not valid user")
+        if (auth.password.isEmpty()) throw OAuth2Exception.InvalidGrant("Not valid password")
         // check it on db
 
         if (!deviceService.check(auth.user, auth.password)) throw OAuth2Exception.InvalidGrant("Not valid user or password.")
         // store tokens
-        val tokens = authService.newTokens(username = auth.user)
         // return it
-        return tokens
+        return authService.newTokens(username = auth.user)
     }
 
     fun exist(mac: String) : Device? {
-        if (mac.isNullOrEmpty()) return null
-        val device = deviceService.checkExists(mac) ?: return null
-        return device
-    }
-
-    fun create(mac : String){
-        // check if user exist on db
-        if (mac.isNullOrEmpty()) throw IllegalArgumentException("Invalid user")
-        if (mac.length != 17 ) throw IllegalArgumentException("Invalid user")
-        if (!mac.contains(":")) throw IllegalArgumentException("Invalid user")
-
-        // create imei
-        deviceService.post(mac = mac)
+        if (mac.isEmpty()) return null
+        return deviceService.checkExists(mac) ?: return null
     }
 
     fun getAll(): List<Device4W> {
@@ -69,13 +48,11 @@ class DeviceCtrl : KoinComponent {
             // retrieve last events
             d4.last_events = taskService.getLastFiveTasks(mac = d.mac)
             // retrieve last intents
-
+            d4.last_intent = intentsService.getLastIntent(mac = d.mac)
             // retrieve relation
             d4.relation = deviceService.getLastAssignment(mac = d.mac)
             // retrieve pending actions
             d4.pending = taskService.getPendingTaskForDevice(d.mac)
-            // retrieve position
-
             //add to list
             devices4w.add(d4)
 
@@ -88,10 +65,10 @@ class DeviceCtrl : KoinComponent {
         val person = peopleService.getPerson(nif) ?: throw IllegalArgumentException("no person with nif = $nif.")
 
         // check if device exists
-        val device = deviceService.checkExists(mac = device) ?: throw IllegalArgumentException("no device with mac = $device.")
+        val d = deviceService.checkExists(mac = device) ?: throw IllegalArgumentException("no device with mac = $device.")
 
         // add relation
-        deviceService.assignUser(nif = person.nif, mac = device.mac)
+        deviceService.assignUser(nif = person.nif, mac = d.mac)
     }
 
     fun finishRelation(mac: String) {
@@ -148,10 +125,7 @@ class DeviceCtrl : KoinComponent {
             if (Instant.parse(u.from).isAfter(Instant.parse(f))) f = u.from
             if (Instant.parse(u.from).isAfter(Instant.parse(t))) t = u.from
         }
-
-        // retrieves it
-        val i = intentsService.getIntents(d!!.mac, f, t)
         // returns it
-        return i
+        return intentsService.getIntents(d!!.mac, f, t)
     }
 }

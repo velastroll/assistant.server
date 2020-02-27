@@ -3,8 +3,11 @@ package com.percomp.assistant.core.services
 import com.percomp.assistant.core.dao.DatabaseFactory.dbQuery
 import com.percomp.assistant.core.model.People
 import com.percomp.assistant.core.model.Person
+import com.percomp.assistant.core.model.Relation
+import com.percomp.assistant.core.model.Relations
 import controller.services.PeopleService
 import kotlinx.coroutines.runBlocking
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
@@ -93,6 +96,24 @@ class PeopleRepo : PeopleService {
                             postcode = it[People.location]
                         )
                     }
+            }
+        }
+    }
+
+    /**
+     * This method retrieves the current relation of a specific user with any device.
+     * @param nif is the national identifier of the user.
+     * @return [Relation] or null.
+     */
+    override fun getRelation(nif : String) : Relation? {
+        return runBlocking {
+            return@runBlocking dbQuery {
+                Relations.select({Relations.user eq nif and (Relations.to.isNull())}).map {
+                    Relation(
+                        device = it[Relations.device],
+                        from = it[Relations.from]
+                    )
+                }.firstOrNull()
             }
         }
     }

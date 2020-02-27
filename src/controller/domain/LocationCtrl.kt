@@ -3,13 +3,10 @@ package com.percomp.assistant.core.controller.services
 import com.percomp.assistant.core.model.Person
 import com.percomp.assistant.core.model.Position
 import controller.services.PeopleService
-import org.koin.core.KoinComponent
-import org.koin.core.inject
 
-class LocationCtrl : KoinComponent{
-
-    private val locationService : LocationService by inject()
-    private val peopleService: PeopleService by inject()
+class LocationCtrl (
+    private val locationService : LocationService,
+    private val peopleService: PeopleService){
 
     fun add(name : String, postCode : Int, lat: Double, lon: Double){
         if (name.length < 3) throw IllegalArgumentException("Name is too short.")
@@ -34,6 +31,9 @@ class LocationCtrl : KoinComponent{
             // retrieve people for each location
             for (l : Location in locations){
                 l.people = peopleService.getByPostalCode(postalCode = l.postcode) as ArrayList<Person>
+                l.people.forEach {
+                    it.relation = peopleService.getRelation(it.nif)
+                }
             }
             p.locations = locations as ArrayList<Location>
         }

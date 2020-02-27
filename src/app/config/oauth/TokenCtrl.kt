@@ -2,26 +2,35 @@ package com.percomp.assistant.core.app.config.oauth
 
 import com.percomp.assistant.core.controller.domain.DeviceCtrl
 import com.percomp.assistant.core.controller.domain.UserCtrl
+import com.percomp.assistant.core.controller.services.LocationService
 import com.percomp.assistant.core.model.UserType
 import com.percomp.assistant.core.rest.log
 import com.percomp.assistant.core.tokenStore
+import controller.services.*
 import io.ktor.auth.OAuth2Exception
 import io.ktor.util.KtorExperimentalAPI
+import model.Token
 import nl.myndocs.oauth2.identity.Identity
 import nl.myndocs.oauth2.token.AccessToken
 import nl.myndocs.oauth2.token.RefreshToken
-import org.koin.core.KoinComponent
 import java.time.Instant
 
-class TokenCtrl{
+class TokenCtrl(
+    dS : DeviceService,
+    tS : TaskService,
+    pS : PeopleService,
+    lS : LocationService,
+    iS : IntentsService,
+    uS : UserService
+) : AuthService {
 
-    private val deviceCtrl = DeviceCtrl()
-    private val userCtrl = UserCtrl()
+    private val deviceCtrl = DeviceCtrl(dS, tS, pS, lS, this, iS)
+    private val userCtrl = UserCtrl(uS, pS, dS, this)
 
     /**
      * Deletes the token prefix
      */
-    fun cleanTokenTag(token : String) : String{
+    override fun cleanTokenTag(token : String) : String{
         var a = ""
         if(token.contains("Bearer")) a = token.substring(7)
         if(token.contains("MAC")) a = token.substring(4)
@@ -36,10 +45,10 @@ class TokenCtrl{
      */
     @Throws(OAuth2Exception.InvalidGrant::class)
     @KtorExperimentalAPI
-    fun checkAccessToken(device : UserType, access_token: String) : String? {
+    override fun checkAccessToken(device : UserType, access_token: String) : String? {
         val accessToken = tokenStore.accessToken(access_token) ?: throw OAuth2Exception.InvalidGrant("Unarchived token.")
         log.debug("${access_token} => AT: $accessToken")
-        val toReturn = deviceCtrl.exist(mac = accessToken!!.identity!!.username)
+        val toReturn = deviceCtrl.exist(mac = accessToken.identity!!.username)
         log.debug("toReturn: $toReturn")
         if (toReturn != null && device == UserType.DEVICE) {
 
@@ -62,7 +71,7 @@ class TokenCtrl{
      * @return [Token]
      */
     @KtorExperimentalAPI
-    fun refreshTokens(refresh_token: String) : Token {
+    override fun refreshTokens(refresh_token: String) : Token {
 
         // check if the refresh token is valid
         val rt = tokenStore.refreshToken(cleanTokenTag(refresh_token)) ?: throw OAuth2Exception.InvalidGrant("Bad request or invalid credentials")
@@ -101,7 +110,7 @@ class TokenCtrl{
      * Generate [Token] which includes the both [access_token] as a [refresh_token] attributes, nested for a specific user.
      * Each att is a String which the scheme: 'Bearer XYZ' where 'XYZ' is substituting the real token.
      */
-    fun newTokens(username: String, clientId: String = "login") : Token{
+    override fun newTokens(username: String, clientId: String) : Token{
 
         // retrieve the identity nested for a specific username
         val identity = Identity(username= username)
@@ -135,18 +144,12 @@ class TokenCtrl{
 
 
 }
-    /**
-     * Data class to represent a couple of token.
-     */
-    data class Token(
-        val access_token: String,
-        val refresh_token: String?
-    )
 
-    // Tools to generate the token
-    private val charPool : List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
-    private val TOKEN_LENGTH = 32
-    private fun generateToken() = (1..TOKEN_LENGTH)
-            .map { i -> kotlin.random.Random.nextInt(0, charPool.size) }
-            .map(charPool::get)
-            .joinToString("")
+
+// Tools to generate the token
+private val charPool : List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
+private val TOKEN_LENGTH = 32
+private fun generateToken() = (1..TOKEN_LENGTH)
+        .map { kotlin.random.Random.nextInt(0, charPool.size) }
+        .map(charPool::get)
+        .joinToString("")

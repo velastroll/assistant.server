@@ -11,7 +11,7 @@ package com.percomp.assistant.core.util.communication
  * @date 2019-10-18
  * @author Álvaro Velasco Gil
  */
-public enum class RaspiAction{
+enum class RaspiAction{
     ALIVE,
     CONFIG,
     LOGIN,

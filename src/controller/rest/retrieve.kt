@@ -8,6 +8,7 @@ import com.percomp.assistant.core.model.UserType
 import com.percomp.assistant.core.util.communication.RaspiAction
 import com.percomp.assistant.core.util.communication.Response
 import com.percomp.assistant.core.util.communication.ResponseData
+import controller.services.AuthService
 import io.ktor.application.call
 import io.ktor.auth.OAuth2Exception
 import io.ktor.features.origin
@@ -16,18 +17,15 @@ import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.post
 import io.ktor.routing.route
-import org.koin.ktor.ext.inject
-
 
 val log = Logger.instance
 
-fun Route.retrieve(){
-
-    val auth = TokenCtrl()
+fun Route.retrieve(
+    auth : AuthService
+){
 
     // need to check if any function is ready to send to the device
     route("towns/{town}"){
-
         post{
             try {
                 // TODO: extract device from Auth

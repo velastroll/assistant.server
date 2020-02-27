@@ -1,26 +1,21 @@
 package com.percomp.assistant.core.controller.domain
 
-import com.percomp.assistant.core.app.config.oauth.Token
-import com.percomp.assistant.core.app.config.oauth.TokenCtrl
+import com.percomp.assistant.core.model.CredentialRequest
 import com.percomp.assistant.core.model.Person
 import com.percomp.assistant.core.model.User
-import com.percomp.assistant.core.rest.CredentialRequest
+import controller.services.AuthService
 import controller.services.DeviceService
 import controller.services.PeopleService
 import controller.services.UserService
 import io.ktor.auth.OAuth2Exception
-import org.koin.core.KoinComponent
-import org.koin.core.inject
+import model.Token
 import java.lang.IllegalArgumentException
 
-class UserCtrl : KoinComponent {
-
-
-    private val userService: UserService by inject()
-    private val peopleService: PeopleService by inject()
-    private val deviceService: DeviceService by inject()
-    private val authService : TokenCtrl by inject()
-
+class UserCtrl (
+    private val userService: UserService,
+    private val peopleService: PeopleService,
+    private val deviceService: DeviceService,
+    private val authService : AuthService){
 
     fun check(auth : CredentialRequest) : Token {
 

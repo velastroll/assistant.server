@@ -27,5 +27,5 @@ val myModule = module {
     single { TaskRepo() as TaskService }
     single { UserRepo() as UserService }
     single { IntentRepo() as IntentsService }
-    single { TokenCtrl() }
+    single { TokenCtrl(get(), get(), get(), get(), get(), get()) as AuthService }
 }

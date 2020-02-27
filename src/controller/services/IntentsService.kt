@@ -1,5 +1,6 @@
 package controller.services
 
+import com.percomp.assistant.core.model.Intent4W
 import model.Intent
 
 interface IntentsService {
@@ -18,4 +19,10 @@ interface IntentsService {
      * @param to is the max intent datetime to retrieve.
      */
     fun getIntents(device : String, from : String, to : String) : List<Intent>
+
+    /**
+     * Retrieve the last intent of a specific device.
+     * @param mac is the device identifier.
+     */
+    fun getLastIntent(mac: String): Intent4W?
 }

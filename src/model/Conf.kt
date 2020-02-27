@@ -15,6 +15,15 @@ data class ConfBody(
     var sleep_sec : Int = 60
 )
 
+data class ConfDatas (
+    var global : ConfData? = null,
+    var location : ConfData? = null,
+    var deviceConf : ConfData? = null,
+    var pendingConf : ConfData? = null
+)
+
+/* TABLE */
+
 object Confs : Table() {
     val receiver = varchar("receiver", Constants.IDENTIFIER)
     val timestamp = varchar("timestamp", Constants.TIMESTAMP)

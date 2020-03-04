@@ -77,6 +77,7 @@ class TaskRepo : TaskService {
                     it[Tasks.by] = task.by
                     it[Tasks.at] = task.at
                     it[Tasks.event] = task.event!!
+                    it[Tasks.content] = task.content
                 }
                 return@dbQuery true
             }
@@ -105,7 +106,8 @@ class TaskRepo : TaskService {
                             by = it[Tasks.by],
                             at = it[Tasks.at],
                             event = it[Tasks.event],
-                            timestamp = it[Tasks.timestamp]
+                            timestamp = it[Tasks.timestamp],
+                            content = it[Tasks.content]
                         )
                     }
             }
@@ -167,7 +169,8 @@ class TaskRepo : TaskService {
                             event = it[Tasks.event],
                             by = it[Tasks.by],
                             timestamp = it[Tasks.timestamp],
-                            at = it[Tasks.at]
+                            at = it[Tasks.at],
+                            content = it[Tasks.content]
                         )
                     } as ArrayList
             }

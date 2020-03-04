@@ -9,7 +9,8 @@ data class Task(
     var by : String? = null, // worker who send it
     var at : String? = null, // timestamp of the worker request
     var event : String? = null, // task identifier
-    var timestamp: String? = "9999" // when it was confirmed
+    var timestamp: String? = "9999", // when it was confirmed
+    var content : String? = null
 )
 
 data class Event(
@@ -44,6 +45,7 @@ object Tasks : Table(){
     val at = varchar("at", Constants.TIMESTAMP).nullable()
     val event = reference("event", Events.name)
     val timestamp = varchar("timestamp", Constants.TIMESTAMP).nullable()
+    val content = varchar("content", Constants.EVENT_CONTENT).nullable()
 }
 
 object Events : Table() {

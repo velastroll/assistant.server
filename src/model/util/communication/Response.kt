@@ -9,7 +9,8 @@ import com.percomp.assistant.core.controller.retriever.Place
 data class Response(
     val action : RaspiAction,
     var status : Int = 404,
-    var data : ResponseData? = null
+    var data : ResponseData? = null,
+    var content : String? = null
 )
 
 data class ResponseData(

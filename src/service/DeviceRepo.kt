@@ -15,6 +15,25 @@ import java.time.Instant
 class DeviceRepo : DeviceService {
 
     /**
+     * Return the content of the last task, configured to a specific user.
+     *
+     * @param device is the owner of the wifi data.
+     * @param task is the task of the data.
+     */
+    override fun getContent(device: String, task: String): String? {
+        return runBlocking {
+            return@runBlocking dbQuery {
+                Tasks
+                    .select({Tasks.device eq device and (Tasks.event eq task)}).orderBy(Tasks.timestamp, isAsc = false)
+                    .map {
+                            it[Tasks.content]
+                        }
+                    .firstOrNull()
+            }
+        }
+    }
+
+    /**
      * This method checks if the combination of mac device and password is correct.
      * @param mac is the device identifier.
      * @param password is the secret device key.

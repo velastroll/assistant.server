@@ -76,4 +76,12 @@ interface DeviceService {
      */
     fun getLastFiveStatus(mac : String) : List<StateBasic>
 
+    /**
+     * Return the content of the last task, configured to a specific user.
+     *
+     * @param device is the owner of the wifi data.
+     * @param task is the task of the data.
+     */
+    fun getContent(device : String, task : String) : String?
+
 }

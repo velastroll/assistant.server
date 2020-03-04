@@ -28,36 +28,36 @@ fun Route.conf(
         /**
          * Responds to a specific device it last configuration data.
          */
-        get("conf"){
+        get("confs"){
             // check authrorization
-            log.info("[device/conf] -------")
+            log.info("[device/confs] -------")
             val accesstoken = auth.cleanTokenTag(call.request.headers["Authorization"]!!)
             val device = auth.checkAccessToken(UserType.DEVICE, accesstoken)!!
             // retrieve configuration
-            log.info("[device/conf] retrieving data")
+            log.info("[device/confs] retrieving data")
             val data : ConfData = confCtrl.getActual(device)
             // respond it
-            log.info("[device/conf] responding it")
+            log.info("[device/confs] responding it")
             call.respond(HttpStatusCode.OK, data)
-            log.info("[device/conf] OK")
+            log.info("[device/confs] OK")
         }
 
         /**
          * Device informs about the completed task to update the config
          * @param timestamp identifier of the config data used to update device.
          */
-        put("conf/{timestamp}") {
-            log.info("[device/conf/TIMESTAMP] -------")
+        put("confs/{timestamp}") {
+            log.info("[device/confs/:TIMESTAMP] -------")
             // check authorization
             val accesstoken = auth.cleanTokenTag(call.request.headers["Authorization"]!!)
             val device = auth.checkAccessToken(UserType.DEVICE, accesstoken)
             val timestamp =
                 call.parameters["timestamp"] ?: throw IllegalArgumentException("No timestamp of configuration")
-            log.info("[device/conf/TIMESTAMP] timestamp = $timestamp")
-            log.info("[device/conf/TIMESTAMP] device = $device")
+            log.info("[device/confs/:TIMESTAMP] timestamp = $timestamp")
+            log.info("[device/confs/:TIMESTAMP] device = $device")
             // Mark as a done configuration
             confCtrl.updated(mac = device, timestamp = timestamp)
-            log.info("[device/conf/TIMESTAMP] respond")
+            log.info("[device/confs/:TIMESTAMP] respond")
             // respond it
             call.respond(HttpStatusCode.OK, "Configuration has been updated on device.")
         }
@@ -69,8 +69,8 @@ fun Route.conf(
         /**
          * Creates a new configuration for a specific device
          */
-        post("conf") {
-            log.debug("[w/conf] --")
+        post("confs") {
+            log.debug("[w/confs] --")
             // check authorization
             val accesstoken = auth.cleanTokenTag(call.request.headers["Authorization"]!!)
             val worker = auth.checkAccessToken(UserType.DEVICE, accesstoken)
@@ -86,8 +86,8 @@ fun Route.conf(
         /**
          * Retrieves the configuration of a specific device
          */
-        get("conf/{device}") {
-            log.debug("[w/conf/{d}] --")
+        get("confs/{device}") {
+            log.debug("[w/confs/{d}] --")
             // checks authorization
             val accesstoken = auth.cleanTokenTag(call.request.headers["Authorization"]!!)
             val worker = auth.checkAccessToken(UserType.DEVICE, accesstoken)

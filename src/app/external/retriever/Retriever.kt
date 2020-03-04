@@ -48,7 +48,7 @@ data class Address(
 /**
  * List of websites to retrieve their data.
  */
-public enum class Towns(val url : String) {
+enum class Towns(val url : String) {
 
     SANVICENTEDELPALACIO("http://sanvicentedelpalacio.ayuntamientosdevalladolid.es");
 

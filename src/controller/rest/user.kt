@@ -47,23 +47,24 @@ fun Route.user(
         /**
          * This call tries to add a new person to the system.
          */
-        post ("person") {
-            log.info("[worker/person] Retrieving token.")
+        post ("people") {
+            log.info("[worker/people] Retrieving token.")
             // check authorization
             var accesstoken: String =
                 call.request.headers["Authorization"] ?: throw OAuth2Exception.InvalidGrant("No token")
             accesstoken = aS.cleanTokenTag(accesstoken)
             val worker = aS.checkAccessToken(UserType.USER, accesstoken)
 
-            log.info("[worker/person] Worker $worker try to add a new person.")
+            log.info("[worker/people] Worker $worker try to add a new person.")
             val person = call.receive<Person>()
 
-            log.info("[worker/person] Add person: $person")
+            log.info("[worker/people] Add person: $person")
             userCtrl.addPerson(person)
 
-            log.info("[worker/person] Send response.")
+            log.info("[worker/people] Send response.")
             call.respond(HttpStatusCode.OK)
         }
+
 
         /**
          * This method retrieves all the registered people

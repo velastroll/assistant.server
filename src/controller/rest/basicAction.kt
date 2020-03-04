@@ -85,8 +85,8 @@ fun Route.basicAction(
         /**
          * Device says that is doing one task, so the core marks it as done.
          */
-        get("/task/{task}/doing") {
-            log.warn("[doing task] ----------------------- ")
+        get("/tasks/{task}/doing") {
+            log.warn("[doing tasks] ----------------------- ")
             // check authorization
             var accesstoken =
                 call.request.headers["Authorization"] ?: throw OAuth2Exception.InvalidGrant("Missing token.")
@@ -119,40 +119,40 @@ fun Route.basicAction(
         /**
          * Worker creates a new type of event
          */
-        post("event") {
+        post("events") {
             // check authorization
-            log.debug("[worker/event] --")
+            log.debug("[worker/events] --")
             var accesstoken =
                 call.request.headers["Authorization"] ?: throw OAuth2Exception.InvalidGrant("Missing token")
             accesstoken = aS.cleanTokenTag(accesstoken)
             val worker_username = aS.checkAccessToken(UserType.USER, accesstoken)
             val request = call.receive<Event>()
-            log.debug("[worker/event] Access for $worker_username")
+            log.debug("[worker/events] Access for $worker_username")
             // add relation
             taskCtrl.addEvent(name = request.name, content = request.content)
             // respond it
-            log.debug("[worker/event] Ok")
+            log.debug("[worker/events] Ok")
             call.respond(HttpStatusCode.OK, "Added.")
         }
 
         /**
          * Retrieve all the possible types of events.
          */
-        get("event") {
+        get("events") {
             // check authorization
-            log.debug("[worker/event] ------------------------")
+            log.debug("[worker/events] ------------------------")
             var accesstoken =
                 call.request.headers["Authorization"] ?: throw OAuth2Exception.InvalidGrant("Missing token")
             accesstoken = aS.cleanTokenTag(accesstoken)
             val worker_username = aS.checkAccessToken(UserType.USER, accesstoken)
-            log.debug("[worker/event] Access for $worker_username")
+            log.debug("[worker/events] Access for $worker_username")
 
             // retrieve event
             val events = taskCtrl.getEvents()
-            log.debug("[worker/event] Retrieved type of events.")
+            log.debug("[worker/events] Retrieved type of events.")
 
             call.respond(HttpStatusCode.OK, events)
-            log.debug("[worker/event] Ok.")
+            log.debug("[worker/events] Ok.")
         }
 
         /**
@@ -160,18 +160,18 @@ fun Route.basicAction(
          */
         post("task") {
             // check authorization
-            log.info("[worker/task] --")
+            log.info("[worker/tasks] --")
             var accesstoken =
                 call.request.headers["Authorization"] ?: throw OAuth2Exception.InvalidGrant("Missing token")
             accesstoken = aS.cleanTokenTag(accesstoken)
             val worker_username =
                 aS.checkAccessToken(UserType.USER, accesstoken) ?: throw OAuth2Exception.InvalidGrant("Expired token")
             val request = call.receive<Task>()
-            log.info("[worker/task] Access for $worker_username")
+            log.info("[worker/tasks] Access for $worker_username")
             // add relation
             taskCtrl.addTask(task = request, by = worker_username)
             // respond it
-            log.info("[worker/task] Ok")
+            log.info("[worker/tasks] Ok")
             call.respond(HttpStatusCode.OK, "Added.")
         }
 

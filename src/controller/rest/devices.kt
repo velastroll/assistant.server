@@ -29,28 +29,28 @@ fun Route.devices(
     val deviceCtrl = DeviceCtrl(dS, tS, pS, lS, aS, iS)
 
     /* for devices */
-    route("devices"){
+    route("device"){
 
         /**
          *  This call is for devices to inform about a done intent.
          */
-        post("intent"){
+        post("intents"){
             try {
                 // get the device identification
-                log.info("[devices/intent] ---- New")
+                log.info("[devices/intens] ---- New")
                 val accesstoken = aS.cleanTokenTag(call.request.headers["Authorization"]!!)
                 val device : String? = aS.checkAccessToken(UserType.DEVICE, accesstoken)
                 // get the intent list
-                log.info("[devices/intent] Retrieving intents")
+                log.info("[devices/intents] Retrieving intents")
                 val intent: IntentDone = call.receive()
-                log.info("[devices/intent] Processing it")
+                log.info("[devices/intents] Processing it")
                 deviceCtrl.newIntentAction(device = device, intent = intent)
-                log.info("[devices/intent] Ok.")
+                log.info("[devices/intents] Ok.")
                 call.respond(HttpStatusCode.OK)
                 return@post
             }
             catch (e: Exception) {
-                log.info("Oups! : ${e}")
+                log.info("[devices/intents] Oups! : ${e}")
             }
         }
 

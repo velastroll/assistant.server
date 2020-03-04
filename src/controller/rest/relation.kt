@@ -27,7 +27,7 @@ fun Route.relation(
         /**
          * Add relation for real person
          **/
-        post("relation") {
+        post("relations") {
             // check authorization
             var accesstoken: String =
                 call.request.headers["Authorization"] ?: throw OAuth2Exception.InvalidGrant("No token")
@@ -44,7 +44,7 @@ fun Route.relation(
         /**
          * finish relation for real person
          * **/
-        delete("relation/{device}") {
+        delete("relations/{device}") {
             var accesstoken: String =
                 call.request.headers["Authorization"] ?: throw OAuth2Exception.InvalidGrant("No token")
             accesstoken = aS.cleanTokenTag(accesstoken)
@@ -61,7 +61,7 @@ fun Route.relation(
         /**
          * Retrieve the relation of a specific device.
          */
-        get("relation/{device}") {
+        get("relations/{device}") {
             // check authrorization
             var accesstoken: String =
                 call.request.headers["Authorization"] ?: throw OAuth2Exception.InvalidGrant("No token")

@@ -78,11 +78,14 @@ class TaskCtrl (
         return taskService.getTask(device, from, to)
     }
 
-    fun done(device: String, task: String?) {
+    fun done(device: String, task: String?) : String? {
 
         if (task.isNullOrEmpty()) throw IllegalArgumentException("Task cannot be null.")
         val date = Instant.now().toString()
         taskService.endTask(device, task, date)
+
+        // retrieve related content to the task
+        return deviceService.getContent(device, task)
     }
 
     fun getEvents(): List<Event> {

@@ -101,11 +101,11 @@ fun Route.basicAction(
             taskCtrl.newStatus(device, RaspiAction.DOING_TASK, task)
 
             // mark task as done
-            taskCtrl.done(device, task)
+            val content : String? = taskCtrl.done(device, task)
             log.info("[doing task] Updated task as done")
 
             // response
-            call.respond(HttpStatusCode.OK, Response(status = 200, action = RaspiAction.ALIVE))
+            call.respond(HttpStatusCode.OK, Response(status = 200, action = RaspiAction.ALIVE, content = content))
             log.info("[alive] Respond OK")
         }
 

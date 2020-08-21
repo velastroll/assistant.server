@@ -1,17 +1,16 @@
 package com.percomp.assistant.core.services
 
-import com.percomp.assistant.core.dao.DatabaseFactory.dbQuery
+import com.percomp.assistant.core.controller.services.PeopleService
 import com.percomp.assistant.core.model.People
 import com.percomp.assistant.core.model.Person
 import com.percomp.assistant.core.model.Relation
 import com.percomp.assistant.core.model.Relations
-import controller.services.PeopleService
+import com.percomp.assistant.core.services.DatabaseFactory.dbQuery
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
-import java.security.MessageDigest
 
 class PeopleRepo : PeopleService {
 

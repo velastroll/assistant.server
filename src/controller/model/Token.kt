@@ -1,4 +1,4 @@
-package model
+package com.percomp.assistant.core.model
 
 /**
  * Data class to represent a couple of token.

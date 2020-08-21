@@ -1,17 +1,18 @@
 package com.percomp.assistant.core.controller.domain
 
+import com.percomp.assistant.core.controller.services.DeviceService
+import com.percomp.assistant.core.controller.services.TaskService
 import com.percomp.assistant.core.model.Event
 import com.percomp.assistant.core.model.Task
 import com.percomp.assistant.core.util.Constants
 import com.percomp.assistant.core.util.communication.RaspiAction
-import controller.services.DeviceService
-import controller.services.TaskService
 import org.joda.time.Instant
 
 class TaskCtrl (
 
     val deviceService: DeviceService,
-    val taskService: TaskService ) {
+    val taskService: TaskService
+) {
 
 
     fun addEvent(name : String?, content: String?){

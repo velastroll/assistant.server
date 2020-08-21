@@ -1,10 +1,10 @@
-package com.percomp.assistant.core.dao
+package com.percomp.assistant.core.services
 
-import com.percomp.assistant.core.dao.DatabaseFactory.dbQuery
+import com.percomp.assistant.core.controller.services.ConfService
 import com.percomp.assistant.core.model.ConfBody
 import com.percomp.assistant.core.model.ConfData
 import com.percomp.assistant.core.model.Confs
-import controller.services.ConfService
+import com.percomp.assistant.core.services.DatabaseFactory.dbQuery
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.sql.*
 

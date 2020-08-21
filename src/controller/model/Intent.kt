@@ -1,4 +1,4 @@
-package model
+package com.percomp.assistant.core.model
 
 import com.percomp.assistant.core.model.Devices
 import com.percomp.assistant.core.util.Constants

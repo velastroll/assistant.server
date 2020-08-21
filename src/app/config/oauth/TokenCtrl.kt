@@ -2,14 +2,13 @@ package com.percomp.assistant.core.app.config.oauth
 
 import com.percomp.assistant.core.controller.domain.DeviceCtrl
 import com.percomp.assistant.core.controller.domain.UserCtrl
-import com.percomp.assistant.core.controller.services.LocationService
+import com.percomp.assistant.core.controller.services.*
+import com.percomp.assistant.core.model.Token
 import com.percomp.assistant.core.model.UserType
 import com.percomp.assistant.core.rest.log
 import com.percomp.assistant.core.tokenStore
-import controller.services.*
 import io.ktor.auth.OAuth2Exception
 import io.ktor.util.KtorExperimentalAPI
-import model.Token
 import nl.myndocs.oauth2.identity.Identity
 import nl.myndocs.oauth2.token.AccessToken
 import nl.myndocs.oauth2.token.RefreshToken

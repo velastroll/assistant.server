@@ -9,7 +9,7 @@ buildscript {
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "gradle.plugin.org.gretty:gretty:2.3.1"
-        classpath "com.github.jengelman.gradle.plugins:shadow:2.0.1" // ShadowJar
+        classpath "com.github.jengelman.gradle.plugins:shadow:$shadow_version" // ShadowJar
 
     }
 }
@@ -23,7 +23,6 @@ webAppDirName = 'webapp'
 
 group 'percomp'
 version '0.0.1'
-//mainClassName = "io.ktor.server.netty.EngineMain"
 mainClassName = "com.percomp.assistant.core.ApplicationKt"
 
 //javalin

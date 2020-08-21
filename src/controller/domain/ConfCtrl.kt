@@ -1,10 +1,9 @@
 package com.percomp.assistant.core.controller.domain
 
-import com.percomp.assistant.core.controller.services.Location
+import com.percomp.assistant.core.controller.services.ConfService
+import com.percomp.assistant.core.controller.services.DeviceService
 import com.percomp.assistant.core.controller.services.LocationService
 import com.percomp.assistant.core.model.*
-import controller.services.ConfService
-import controller.services.DeviceService
 import io.ktor.auth.OAuth2Exception
 import io.ktor.util.KtorExperimentalAPI
 import java.time.Instant

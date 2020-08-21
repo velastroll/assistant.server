@@ -5,11 +5,10 @@ import com.percomp.assistant.core.app.config.GrantAccessCtrl
 import com.percomp.assistant.core.config.oauth.InMemoryIdentityCustom
 import com.percomp.assistant.core.config.oauth.InMemoryTokenStoreCustom
 import com.percomp.assistant.core.controller.retriever.*
-import com.percomp.assistant.core.controller.services.LocationService
-import com.percomp.assistant.core.dao.DatabaseFactory
+import com.percomp.assistant.core.controller.services.*
 import com.percomp.assistant.core.rest.*
+import com.percomp.assistant.core.services.DatabaseFactory
 import com.percomp.assistant.core.util.Credentials
-import controller.services.*
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.features.CORS
@@ -23,13 +22,11 @@ import io.ktor.locations.*
 import io.ktor.request.uri
 import io.ktor.response.respond
 import io.ktor.routing.routing
-import io.ktor.server.engine.BaseApplicationResponse
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.util.KtorExperimentalAPI
 import nl.myndocs.oauth2.client.AuthorizedGrantType
 import nl.myndocs.oauth2.client.inmemory.InMemoryClient
-import nl.myndocs.oauth2.exception.InvalidGrantException
 import nl.myndocs.oauth2.ktor.feature.Oauth2ServerFeature
 import nl.myndocs.oauth2.token.converter.UUIDAccessTokenConverter
 import nl.myndocs.oauth2.token.converter.UUIDRefreshTokenConverter

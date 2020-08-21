@@ -1,7 +1,7 @@
 package  com.percomp.assistant.core.app.config
 
+import com.percomp.assistant.core.controller.services.AuthService
 import com.percomp.assistant.core.model.UserType
-import controller.services.AuthService
 import io.ktor.util.KtorExperimentalAPI
 import org.koin.core.KoinComponent
 import org.koin.core.inject

@@ -3,10 +3,10 @@ package com.percomp.assistant.core.services
 import com.percomp.assistant.core.controller.services.Location
 import com.percomp.assistant.core.controller.services.LocationService
 import com.percomp.assistant.core.controller.services.Province
-import com.percomp.assistant.core.dao.DatabaseFactory.dbQuery
 import com.percomp.assistant.core.model.Locations
 import com.percomp.assistant.core.model.Position
 import com.percomp.assistant.core.model.Provinces
+import com.percomp.assistant.core.services.DatabaseFactory.dbQuery
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select

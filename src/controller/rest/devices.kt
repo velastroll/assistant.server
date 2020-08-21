@@ -2,6 +2,7 @@ package com.percomp.assistant.core.rest
 
 import com.percomp.assistant.core.controller.domain.DeviceCtrl
 import com.percomp.assistant.core.controller.services.LocationService
+import com.percomp.assistant.core.model.IntentDone
 import com.percomp.assistant.core.model.IntervalOfDates
 import com.percomp.assistant.core.model.UserType
 import controller.services.*
@@ -14,8 +15,6 @@ import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
 import io.ktor.util.KtorExperimentalAPI
-import model.IntentDone
-
 @KtorExperimentalAPI
 fun Route.devices(
     aS : AuthService,
@@ -37,7 +36,7 @@ fun Route.devices(
         post("intents"){
             try {
                 // get the device identification
-                log.info("[devices/intens] ---- New")
+                log.info("[devices/intents] ---- New")
                 val accesstoken = aS.cleanTokenTag(call.request.headers["Authorization"]!!)
                 val device : String? = aS.checkAccessToken(UserType.DEVICE, accesstoken)
                 // get the intent list

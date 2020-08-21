@@ -1,8 +1,7 @@
-package controller.services
+package com.percomp.assistant.core.controller.services
 
 import com.percomp.assistant.core.model.Device
 import com.percomp.assistant.core.model.Relation
-import com.percomp.assistant.core.model.State
 import com.percomp.assistant.core.model.StateBasic
 import com.percomp.assistant.core.util.communication.RaspiAction
 

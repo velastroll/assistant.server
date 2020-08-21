@@ -1,21 +1,22 @@
 package com.percomp.assistant.core.controller.domain
 
+import com.percomp.assistant.core.controller.services.AuthService
+import com.percomp.assistant.core.controller.services.DeviceService
+import com.percomp.assistant.core.controller.services.PeopleService
+import com.percomp.assistant.core.controller.services.UserService
 import com.percomp.assistant.core.model.CredentialRequest
 import com.percomp.assistant.core.model.Person
+import com.percomp.assistant.core.model.Token
 import com.percomp.assistant.core.model.User
-import controller.services.AuthService
-import controller.services.DeviceService
-import controller.services.PeopleService
-import controller.services.UserService
 import io.ktor.auth.OAuth2Exception
-import model.Token
 import java.lang.IllegalArgumentException
 
 class UserCtrl (
     private val userService: UserService,
     private val peopleService: PeopleService,
     private val deviceService: DeviceService,
-    private val authService : AuthService){
+    private val authService : AuthService
+){
 
     fun check(auth : CredentialRequest) : Token {
 

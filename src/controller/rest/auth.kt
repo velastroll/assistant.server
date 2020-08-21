@@ -1,5 +1,6 @@
 package com.percomp.assistant.core.rest
 
+import com.percomp.assistant.core.model.Token
 import controller.services.AuthService
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
@@ -9,7 +10,6 @@ import io.ktor.routing.Route
 import io.ktor.routing.post
 import io.ktor.routing.route
 import io.ktor.util.KtorExperimentalAPI
-import model.Token
 
 @KtorExperimentalAPI
 fun Route.auth(authService: AuthService) {

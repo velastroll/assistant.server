@@ -1,11 +1,10 @@
-package service
+package com.percomp.assistant.core.services
 
-import com.percomp.assistant.core.dao.DatabaseFactory.dbQuery
-import com.percomp.assistant.core.model.Intent4W
+import com.percomp.assistant.core.controller.services.IntentsService
+import com.percomp.assistant.core.model.*
+import com.percomp.assistant.core.services.DatabaseFactory.dbQuery
 import com.percomp.assistant.core.util.Constants
-import controller.services.IntentsService
 import kotlinx.coroutines.runBlocking
-import model.*
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select

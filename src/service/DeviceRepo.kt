@@ -1,15 +1,14 @@
-package com.percomp.assistant.core.dao
+package com.percomp.assistant.core.services
 
-import com.percomp.assistant.core.dao.DatabaseFactory.dbQuery
+import com.percomp.assistant.core.controller.services.DeviceService
 import com.percomp.assistant.core.model.*
+import com.percomp.assistant.core.services.DatabaseFactory.dbQuery
 import com.percomp.assistant.core.util.Constants
 import com.percomp.assistant.core.util.Constants.HEX
 import com.percomp.assistant.core.util.communication.RaspiAction
-import controller.services.DeviceService
 import io.ktor.auth.OAuth2Exception
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.sql.*
-import java.security.MessageDigest
 import java.time.Instant
 
 class DeviceRepo : DeviceService {

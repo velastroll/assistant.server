@@ -108,8 +108,6 @@ fun Route.basicAction(
             call.respond(HttpStatusCode.OK, Response(status = 200, action = RaspiAction.ALIVE, content = content))
             log.info("[alive] Respond OK")
         }
-
-
     }
 
     /* WORKERS */

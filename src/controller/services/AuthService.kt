@@ -1,9 +1,9 @@
-package controller.services
+package com.percomp.assistant.core.controller.services
 
+import com.percomp.assistant.core.model.Token
 import com.percomp.assistant.core.model.UserType
 import io.ktor.auth.OAuth2Exception
 import io.ktor.util.KtorExperimentalAPI
-import model.Token
 
 interface AuthService{
 

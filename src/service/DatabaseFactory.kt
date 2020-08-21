@@ -1,4 +1,4 @@
-package com.percomp.assistant.core.dao
+package com.percomp.assistant.core.services
 
 import com.percomp.assistant.core.config.backup.scripts.addadmin
 import com.percomp.assistant.core.config.backup.scripts.addprovinces
@@ -8,8 +8,6 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import model.Intents
-import model.Slots
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils.create
 import org.jetbrains.exposed.sql.select

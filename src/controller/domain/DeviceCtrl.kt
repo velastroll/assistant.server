@@ -1,13 +1,9 @@
 package com.percomp.assistant.core.controller.domain
 
-import com.percomp.assistant.core.controller.services.LocationService
+import com.percomp.assistant.core.controller.services.*
 import com.percomp.assistant.core.model.*
 import com.percomp.assistant.core.util.Constants
-import controller.services.*
 import io.ktor.auth.OAuth2Exception
-import model.Intent
-import model.IntentDone
-import model.Token
 import java.time.Instant
 
 class DeviceCtrl(

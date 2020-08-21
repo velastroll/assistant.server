@@ -1,4 +1,4 @@
-package controller.services
+package com.percomp.assistant.core.controller.services
 
 import com.percomp.assistant.core.model.Person
 import com.percomp.assistant.core.model.Relation

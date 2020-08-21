@@ -1,10 +1,10 @@
 package com.percomp.assistant.core.services
 
-import com.percomp.assistant.core.dao.DatabaseFactory.dbQuery
+import com.percomp.assistant.core.controller.services.UserService
 import com.percomp.assistant.core.model.User
 import com.percomp.assistant.core.model.Users
+import com.percomp.assistant.core.services.DatabaseFactory.dbQuery
 import com.percomp.assistant.core.util.Constants
-import controller.services.UserService
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select

@@ -1,7 +1,7 @@
-package controller.services
+package com.percomp.assistant.core.controller.services
 
+import com.percomp.assistant.core.model.Intent
 import com.percomp.assistant.core.model.Intent4W
-import model.Intent
 
 interface IntentsService {
 

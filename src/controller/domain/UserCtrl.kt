@@ -9,8 +9,12 @@ import com.percomp.assistant.core.model.Person
 import com.percomp.assistant.core.model.Token
 import com.percomp.assistant.core.model.User
 import io.ktor.auth.OAuth2Exception
+import io.ktor.util.KtorExperimentalAPI
 import java.lang.IllegalArgumentException
 
+
+
+@KtorExperimentalAPI
 class UserCtrl (
     private val userService: UserService,
     private val peopleService: PeopleService,

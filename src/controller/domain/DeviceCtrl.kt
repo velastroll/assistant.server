@@ -4,8 +4,10 @@ import com.percomp.assistant.core.controller.services.*
 import com.percomp.assistant.core.model.*
 import com.percomp.assistant.core.util.Constants
 import io.ktor.auth.OAuth2Exception
+import io.ktor.util.KtorExperimentalAPI
 import java.time.Instant
 
+@KtorExperimentalAPI
 class DeviceCtrl(
     private val deviceService : DeviceService,
     private val taskService: TaskService,

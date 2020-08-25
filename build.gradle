@@ -64,7 +64,7 @@ dependencies {
 
     //koin
     compile "org.koin:koin-ktor:$koin_version"
-    testCompile("org.koin:koin-test:0.9.3")
+    testCompile("org.koin:koin-test:$kointest_version")
 
     //html include for server side
     compile "io.ktor:ktor-html-builder:$ktor_version"
@@ -106,18 +106,12 @@ dependencies {
 
     //JSoup
     implementation("org.jsoup:jsoup:1.11.3")
+
+    // mockk
+    testImplementation "io.mockk:mockk:$mockk_version"
+
 }
 
-jar {
-    manifest {
-        attributes 'Main-Class': 'com.percomp.assistant.core.ApplicationKt'
-    }
-    from {
-        (configurations.runtime).collect {
-            it.isDirectory() ? it : zipTree(it)
-        }
-    }
-}
 
 shadowJar {
     baseName = 'assistant.core'

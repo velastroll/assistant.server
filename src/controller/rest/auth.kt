@@ -1,7 +1,7 @@
 package com.percomp.assistant.core.rest
 
+import com.percomp.assistant.core.controller.services.AuthService
 import com.percomp.assistant.core.model.Token
-import controller.services.AuthService
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive

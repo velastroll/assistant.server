@@ -1,5 +1,7 @@
 package com.percomp.assistant.core.controller.services
 
+import com.percomp.assistant.core.controller.domain.Location
+import com.percomp.assistant.core.controller.domain.Province
 import com.percomp.assistant.core.model.Position
 
 interface LocationService {

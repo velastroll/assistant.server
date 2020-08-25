@@ -1,18 +1,20 @@
 package com.percomp.assistant.core.rest
 
 import com.percomp.assistant.core.controller.domain.ConfCtrl
+import com.percomp.assistant.core.controller.services.AuthService
+import com.percomp.assistant.core.controller.services.ConfService
+import com.percomp.assistant.core.controller.services.DeviceService
 import com.percomp.assistant.core.controller.services.LocationService
 import com.percomp.assistant.core.model.ConfData
 import com.percomp.assistant.core.model.UserType
-import controller.services.AuthService
-import controller.services.ConfService
-import controller.services.DeviceService
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.*
+import io.ktor.util.KtorExperimentalAPI
 
+@KtorExperimentalAPI
 fun Route.conf(
     auth : AuthService,
     dS : DeviceService,

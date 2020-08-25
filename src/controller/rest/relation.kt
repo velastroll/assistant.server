@@ -1,16 +1,18 @@
 package com.percomp.assistant.core.rest
 
 import com.percomp.assistant.core.controller.domain.DeviceCtrl
-import com.percomp.assistant.core.controller.services.LocationService
+import com.percomp.assistant.core.controller.services.*
 import com.percomp.assistant.core.model.UserType
-import controller.services.*
 import io.ktor.application.call
 import io.ktor.auth.OAuth2Exception
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.*
+import io.ktor.util.KtorExperimentalAPI
 
+
+@KtorExperimentalAPI
 fun Route.relation(
     aS : AuthService,
     dS : DeviceService,
@@ -48,7 +50,7 @@ fun Route.relation(
             var accesstoken: String =
                 call.request.headers["Authorization"] ?: throw OAuth2Exception.InvalidGrant("No token")
             accesstoken = aS.cleanTokenTag(accesstoken)
-            val worker = aS.checkAccessToken(UserType.USER, accesstoken)
+            aS.checkAccessToken(UserType.USER, accesstoken)
             // retrieve device
             val mac = call.parameters["device"] ?: throw IllegalArgumentException("No specified device.")
             // check if has any relation
@@ -66,7 +68,7 @@ fun Route.relation(
             var accesstoken: String =
                 call.request.headers["Authorization"] ?: throw OAuth2Exception.InvalidGrant("No token")
             accesstoken = aS.cleanTokenTag(accesstoken)
-            val worker = aS.checkAccessToken(UserType.USER, accesstoken)
+            aS.checkAccessToken(UserType.USER, accesstoken)
             val device = call.parameters["device"] ?: throw IllegalArgumentException("Device is not specified")
             // add relation
             val relation = deviceCtrl.getRelation(device) ?: throw IllegalArgumentException("Device has not relation")

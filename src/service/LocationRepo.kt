@@ -1,8 +1,8 @@
 package com.percomp.assistant.core.services
 
-import com.percomp.assistant.core.controller.services.Location
+import com.percomp.assistant.core.controller.domain.Location
+import com.percomp.assistant.core.controller.domain.Province
 import com.percomp.assistant.core.controller.services.LocationService
-import com.percomp.assistant.core.controller.services.Province
 import com.percomp.assistant.core.model.Locations
 import com.percomp.assistant.core.model.Position
 import com.percomp.assistant.core.model.Provinces
@@ -76,11 +76,11 @@ class LocationRepo : LocationService {
     /**
      * Retrieves a specific location
      */
-    override fun getLocationByPostalCode(postcode: Int): Location? {
+    override fun getLocationByPostalCode(postalCode: Int): Location? {
         return runBlocking {
             return@runBlocking dbQuery {
                 return@dbQuery Locations
-                    .select({ Locations.postcode eq postcode })
+                    .select({ Locations.postcode eq postalCode })
                     .map {
                         Location(
                             name = it[Locations.name],

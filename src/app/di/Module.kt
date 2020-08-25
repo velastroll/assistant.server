@@ -3,12 +3,15 @@ package app.di
 import com.percomp.assistant.core.app.config.oauth.TokenCtrl
 import com.percomp.assistant.core.controller.services.*
 import com.percomp.assistant.core.services.*
+import io.ktor.util.KtorExperimentalAPI
 import org.koin.dsl.module
 
 /**
  * This module has got the Koin configuration with the declarations of the needed instances.
  * This instances could be injected now, applying the dependency inversion principle.
  */
+
+@KtorExperimentalAPI
 val myModule = module {
 
 

@@ -4,11 +4,13 @@ import com.percomp.assistant.core.controller.services.IntentsService
 import com.percomp.assistant.core.model.*
 import com.percomp.assistant.core.services.DatabaseFactory.dbQuery
 import com.percomp.assistant.core.util.Constants
+import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 
+@KtorExperimentalAPI
 class IntentRepo : IntentsService {
 
     /**

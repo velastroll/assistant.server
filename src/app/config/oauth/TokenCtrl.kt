@@ -14,6 +14,7 @@ import nl.myndocs.oauth2.token.AccessToken
 import nl.myndocs.oauth2.token.RefreshToken
 import java.time.Instant
 
+@KtorExperimentalAPI
 class TokenCtrl(
     dS : DeviceService,
     tS : TaskService,

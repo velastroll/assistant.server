@@ -83,24 +83,6 @@ fun Application.coreModule() {
 
     // Install and configure the OAuth2 server //
     install(Oauth2ServerFeature) {
-        identityService = InMemoryIdentityCustom()
-        clientService = InMemoryClient()
-            .client {
-                clientId = Credentials.OAUTH_CLIENTID.value
-                clientSecret = Credentials.OAUTH_CLIENTSECRET.value
-                // client uri
-                redirectUris = setOf("${Credentials.BASEURL.value}/api/conf/login")
-                // set access token to half an hour
-                accessTokenConverter = UUIDAccessTokenConverter(Credentials.OAUTH_ACCESSTOKEN_TIME.value.toInt())
-                // set refresh token to one week
-                refreshTokenConverter = UUIDRefreshTokenConverter(Credentials.OAUTH_REFRESHTOKEN_TIME.value.toInt())
-                authorizedGrantTypes = setOf(
-                    AuthorizedGrantType.AUTHORIZATION_CODE,
-                    AuthorizedGrantType.PASSWORD,
-                    AuthorizedGrantType.IMPLICIT,
-                    AuthorizedGrantType.REFRESH_TOKEN
-                )
-            }
         tokenStore = InMemoryTokenStoreCustom.get()
     }
 

@@ -7,10 +7,12 @@ import com.percomp.assistant.core.util.Constants
 import com.percomp.assistant.core.util.Constants.HEX
 import com.percomp.assistant.core.util.communication.RaspiAction
 import io.ktor.auth.OAuth2Exception
+import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.sql.*
 import java.time.Instant
 
+@KtorExperimentalAPI
 class DeviceRepo : DeviceService {
 
     /**

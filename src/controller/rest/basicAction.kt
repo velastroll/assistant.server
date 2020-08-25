@@ -3,14 +3,13 @@ package com.percomp.assistant.core.rest
 
 import com.percomp.assistant.core.controller.domain.DeviceCtrl
 import com.percomp.assistant.core.controller.domain.TaskCtrl
-import com.percomp.assistant.core.controller.services.LocationService
+import com.percomp.assistant.core.controller.services.*
 import com.percomp.assistant.core.model.CredentialRequest
 import com.percomp.assistant.core.model.Event
 import com.percomp.assistant.core.model.Task
 import com.percomp.assistant.core.model.UserType
 import com.percomp.assistant.core.util.communication.RaspiAction
 import com.percomp.assistant.core.util.communication.Response
-import controller.services.*
 import io.ktor.application.call
 import io.ktor.auth.OAuth2Exception
 import io.ktor.http.HttpStatusCode

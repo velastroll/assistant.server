@@ -1,0 +1,3 @@
+package categorymarker
+
+interface Sequence {}

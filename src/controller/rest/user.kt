@@ -1,13 +1,13 @@
 package com.percomp.assistant.core.rest
 
 import com.percomp.assistant.core.controller.domain.UserCtrl
+import com.percomp.assistant.core.controller.services.AuthService
+import com.percomp.assistant.core.controller.services.DeviceService
+import com.percomp.assistant.core.controller.services.PeopleService
+import com.percomp.assistant.core.controller.services.UserService
 import com.percomp.assistant.core.model.CredentialRequest
 import com.percomp.assistant.core.model.Person
 import com.percomp.assistant.core.model.UserType
-import controller.services.AuthService
-import controller.services.DeviceService
-import controller.services.PeopleService
-import controller.services.UserService
 import io.ktor.application.call
 import io.ktor.auth.OAuth2Exception
 import io.ktor.http.HttpStatusCode
@@ -17,7 +17,9 @@ import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
+import io.ktor.util.KtorExperimentalAPI
 
+@KtorExperimentalAPI
 fun Route.user(
     uS : UserService,
     pS : PeopleService,
@@ -74,7 +76,7 @@ fun Route.user(
             var accesstoken: String =
                 call.request.headers["Authorization"] ?: throw OAuth2Exception.InvalidGrant("No token")
             accesstoken = aS.cleanTokenTag(accesstoken)
-            val worker = aS.checkAccessToken(UserType.USER, accesstoken)
+            aS.checkAccessToken(UserType.USER, accesstoken)
 
             // retrieve people
             val people = userCtrl.retrievePeople()

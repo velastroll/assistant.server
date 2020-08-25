@@ -5,9 +5,11 @@ import com.percomp.assistant.core.model.ConfBody
 import com.percomp.assistant.core.model.ConfData
 import com.percomp.assistant.core.model.Confs
 import com.percomp.assistant.core.services.DatabaseFactory.dbQuery
+import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.sql.*
 
+@KtorExperimentalAPI
 class ConfRepo : ConfService {
 
     /**
@@ -18,11 +20,11 @@ class ConfRepo : ConfService {
      * @param pending is the status of the configuration for individual device configuration.
      * @return the current filtered configuration.
      */
-    override fun get(device : String, pending : Boolean) : ConfData? {
+    override fun get(filter : String, pending : Boolean) : ConfData? {
         return runBlocking {
             return@runBlocking dbQuery {
                 return@dbQuery Confs
-                    .select({ Confs.receiver eq device and (Confs.pending eq pending) })
+                    .select({ Confs.receiver eq filter and (Confs.pending eq pending) })
                     .orderBy(Confs.timestamp, isAsc = false)
                     .map {
                         ConfData(
@@ -41,10 +43,10 @@ class ConfRepo : ConfService {
      * @param mac is the identifier of the device which has been updated.
      * @param datatime is the same datetime than the datetime of the configuration used to update the device.
      */
-    override fun done(mac: String, timestamp: String) {
+    override fun done(mac: String, datetime: String) {
         runBlocking {
             dbQuery {
-                Confs.update({ Confs.receiver eq mac and (Confs.timestamp eq timestamp) }) {
+                Confs.update({ Confs.receiver eq mac and (Confs.timestamp eq datetime) }) {
                     it[Confs.pending] = false
                 }
             }

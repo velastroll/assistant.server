@@ -4,9 +4,11 @@ import com.percomp.assistant.core.controller.services.TaskService
 import com.percomp.assistant.core.model.*
 import com.percomp.assistant.core.services.DatabaseFactory.dbQuery
 import com.percomp.assistant.core.util.Constants
+import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.sql.*
 
+@KtorExperimentalAPI
 class TaskRepo : TaskService {
 
     /**

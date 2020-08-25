@@ -1,11 +1,10 @@
 package com.percomp.assistant.core.rest
 
 import com.percomp.assistant.core.controller.domain.DeviceCtrl
-import com.percomp.assistant.core.controller.services.LocationService
+import com.percomp.assistant.core.controller.services.*
 import com.percomp.assistant.core.model.IntentDone
 import com.percomp.assistant.core.model.IntervalOfDates
 import com.percomp.assistant.core.model.UserType
-import controller.services.*
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive

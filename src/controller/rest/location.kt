@@ -1,10 +1,10 @@
 package com.percomp.assistant.core.rest
 
-import com.percomp.assistant.core.controller.services.LocationCtrl
+import com.percomp.assistant.core.controller.domain.LocationCtrl
+import com.percomp.assistant.core.controller.services.AuthService
 import com.percomp.assistant.core.controller.services.LocationService
+import com.percomp.assistant.core.controller.services.PeopleService
 import com.percomp.assistant.core.model.UserType
-import controller.services.AuthService
-import controller.services.PeopleService
 import io.ktor.application.call
 import io.ktor.auth.OAuth2Exception
 import io.ktor.http.HttpStatusCode
@@ -14,7 +14,10 @@ import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
+import io.ktor.util.KtorExperimentalAPI
 
+
+@KtorExperimentalAPI
 fun Route.location(
     aS : AuthService,
     lS : LocationService,

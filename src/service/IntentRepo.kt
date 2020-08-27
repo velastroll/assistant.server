@@ -112,7 +112,7 @@ class IntentRepo : IntentsService {
 
     private val charPool : List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
     private fun generateId() = (1..Constants.IDENTIFIER)
-            .map { i -> kotlin.random.Random.nextInt(0, charPool.size) }
+            .map { _ -> kotlin.random.Random.nextInt(0, charPool.size) }
             .map(charPool::get)
             .joinToString("")
 }

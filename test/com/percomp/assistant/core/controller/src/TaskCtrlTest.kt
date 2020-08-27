@@ -5,12 +5,14 @@ import com.percomp.assistant.core.controller.domain.TaskCtrl
 import com.percomp.assistant.core.controller.services.DeviceService
 import com.percomp.assistant.core.controller.services.TaskService
 import com.percomp.assistant.core.model.*
+import com.percomp.assistant.core.util.communication.RaspiAction
 import io.ktor.util.KtorExperimentalAPI
 import io.mockk.CapturingSlot
 import io.mockk.every
 import org.junit.experimental.categories.Category
 import io.mockk.mockk
 import io.mockk.slot
+import java.time.Instant
 import kotlin.IllegalArgumentException
 import kotlin.test.*
 
@@ -439,5 +441,208 @@ class TaskCtrlTest {
         ctrl.addTask(task, by)
 
         assertEquals(should_be, count)
+    }
+
+    /**
+     * getAll() - retrieve all task assigned to a specific device  in a specific interval on time
+     *
+     * Device cannot be empty or null
+     * 'From' cannot be empty or null
+     */
+
+    @Test
+    @Category(BlackBox::class)
+    fun `getAll - device is empty`(){
+        val device = ""
+        val from = "2019-12-12"
+        val to = ""
+        val exc = "Device cannot be empty"
+
+        val e = assertFailsWith<IllegalArgumentException> {
+            ctrl.getAll(device, from, to)
+        }
+
+        assertEquals(exc, e.message)
+    }
+
+    @Test
+    @Category(BlackBox::class)
+    fun `getAll - device is null`(){
+        val device = null
+        val from = "2019-12-12"
+        val to = ""
+        val exc = "Device cannot be empty"
+
+        val e = assertFailsWith<IllegalArgumentException> {
+            ctrl.getAll(device, from, to)
+        }
+
+        assertEquals(exc, e.message)
+    }
+
+    @Test
+    @Category(BlackBox::class)
+    fun `getAll - from is empty`(){
+        val device = "Device"
+        val from = ""
+        val to = ""
+
+        assertFailsWith<IllegalArgumentException> {
+            ctrl.getAll(device, from, to)
+        }
+    }
+
+    @Test
+    @Category(BlackBox::class)
+    fun `getAll - from is null`(){
+        val device = "Device"
+        val from = null
+        val to = ""
+
+        assertFailsWith<IllegalArgumentException> {
+            ctrl.getAll(device, from, to)
+        }
+    }
+
+    @Test
+    @Category(BlackBox::class)
+    fun `getAll - retrieve no tasks`(){
+        val device = "Device"
+        val from = "2019-12-12"
+        val to = ""
+
+        every { tS.getTask(device, from, to) } returns listOf()
+
+        val t = ctrl.getAll(device, from, to)
+
+        assertEquals(0, t.size)
+    }
+
+    @Test
+    @Category(BlackBox::class)
+    fun `getAll - retrieve tasks`(){
+        val device = "Device"
+        val from = "2019-12-12"
+        val to = ""
+
+        val t1 = Task()
+        val t2 = Task()
+        every { tS.getTask(device, from, to) } returns listOf(t1, t2)
+
+        val t = ctrl.getAll(device, from, to)
+
+        assertEquals(2, t.size)
+    }
+
+    /**
+     * done() - mark a task as done
+     *
+     * task cannot be empty or null
+     * if task does not exist, return null
+     * if task exist, return content
+     *
+     */
+
+    @Test
+    @Category(BlackBox::class)
+    fun `done - task is empty`(){
+        val task = ""
+        val device = "do:es:nt:ma:tt:er"
+        val exp = "Task cannot be null."
+
+        val e = assertFailsWith<IllegalArgumentException> { ctrl.done(device, task) }
+        assertEquals(exp, e.message)
+    }
+
+    @Test
+    @Category(BlackBox::class)
+    fun `done - task is null`(){
+        val task = null
+        val device = "do:es:nt:ma:tt:er"
+        val exp = "Task cannot be null."
+
+        val e = assertFailsWith<IllegalArgumentException> { ctrl.done(device, task) }
+        assertEquals(exp, e.message)
+    }
+
+    @Test
+    @Category(BlackBox::class)
+    fun `done - task does not exist`(){
+        val task = "AnyTask"
+        val device = "do:es:nt:ma:tt:er"
+        val now = Instant.now().toString()
+
+        val slot_device : CapturingSlot<String> = slot()
+        val slot_event : CapturingSlot<String> = slot()
+        val slot_date : CapturingSlot<String> = slot()
+
+        every { dS.getContent(device, task) } returns null
+        every { tS.endTask(capture(slot_device), capture(slot_event), capture(slot_date)) } returns Unit
+
+        val e = ctrl.done(device, task)
+        assertEquals(null, e)
+        assertTrue(slot_device.isCaptured)
+        assertTrue(slot_event.isCaptured)
+        assertTrue(slot_date.isCaptured)
+        assertTrue(now < slot_date.captured)
+    }
+
+    @Test
+    @Category(BlackBox::class)
+    fun `done - task exists`(){
+        val task = "AnyTask"
+        val content = "content"
+        val device = "do:es:nt:ma:tt:er"
+        val now = Instant.now().toString()
+
+        val slot_device : CapturingSlot<String> = slot()
+        val slot_event : CapturingSlot<String> = slot()
+        val slot_date : CapturingSlot<String> = slot()
+
+        every { dS.getContent(device, task) } returns content
+        every { tS.endTask(capture(slot_device), capture(slot_event), capture(slot_date)) } returns Unit
+
+        val e = ctrl.done(device, task)
+        assertEquals(content, e)
+        assertTrue(slot_device.isCaptured)
+        assertTrue(slot_event.isCaptured)
+        assertTrue(slot_date.isCaptured)
+        assertTrue(now < slot_date.captured)
+    }
+
+
+    /**
+     * newStatus() - Set the current status of a specific device, and returns the pending task to do.
+     *
+     */
+
+    @Test
+    fun `newStatus - device does not exist`(){
+        val device = "do:es:no:te:xi:st"
+        val status = RaspiAction.LOGIN
+
+        every { dS.newStatus(any(), any()) } returns Unit
+        every { tS.getPendingTaskForDevice(any()) } returns listOf()
+
+        val e = ctrl.newStatus(device, status)
+
+        // tries to save but returns nothing
+        assertEquals(0, e.size)
+    }
+
+
+    @Test
+    fun `newStatus - device does exist`(){
+        val device = "it:is:ex:is:ti:ng"
+        val status = RaspiAction.LOGIN
+        val t1 = Task()
+        val t2 = Task()
+
+        every { dS.newStatus(any(), any()) } returns Unit
+        every { tS.getPendingTaskForDevice(any()) } returns listOf(t1, t2)
+
+        val e = ctrl.newStatus(device, status)
+        // saves it and returns pending task
+        assertEquals(2, e.size)
     }
 }
